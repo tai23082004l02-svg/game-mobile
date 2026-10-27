@@ -52,3 +52,31 @@ Mở mục **Lọc sản phẩm** hoặc `products.html` trên Pages. Không c�
 - Khi nhập, liên kết giống hệt đã tồn tại được bỏ qua; mục không có liên kết vẫn được thêm. Kiểm tra số kỳ doanh số và thang điểm trước khi so sánh, không trộn số toàn thời gian với số 30 ngày.
 
 Các cột CSV: `name,platform,category,url,price,commission,rating,sold,shopRating,demo,rights`. Chỉ `name` bắt buộc. Giá là VND không có dấu phân cách; `commission=10` là 10%; điểm từ 0–5; `sold` là số nguyên; `demo` từ 1–5; `rights` là `yes`, `no`, `unknown`. Ô trống là chưa biết. CSV dùng dấu phẩy ngăn cột và dấu chấm thập phân, UTF-8.
+
+## Lấy sản phẩm Shopee trên laptop
+
+VideoDesk có tiện ích Chrome/Edge đóng gói sẵn tại `public/videodesk-shopee-extension.zip`. Trên trang **Lọc sản phẩm**, mở **Cài tiện ích lấy sản phẩm** để tải ZIP và xem hướng dẫn. Giải nén, mở `chrome://extensions` hoặc `edge://extensions`, bật Developer mode, chọn Load unpacked rồi chọn thư mục có `manifest.json`. Khi có bản cập nhật tiện ích, tải lại ZIP, thay nội dung thư mục và nhấn Reload trong trang quản lý tiện ích.
+
+Luồng sử dụng:
+
+1. Dán link sản phẩm đầy đủ vào VideoDesk và bấm **Mở sản phẩm**, hoặc mở trực tiếp sản phẩm Shopee Việt Nam.
+2. Đăng nhập/xác minh trực tiếp trên Shopee nếu được yêu cầu; chọn biến thể và chờ trang tải xong.
+3. Bấm biểu tượng tiện ích VideoDesk → **Lấy thông tin trang đang mở**. Chọn website GitHub Pages hoặc máy chủ laptop (`localhost:3000`).
+4. Tiện ích mở VideoDesk với bản nháp: kiểm tra giá/biến thể, tên, đánh giá, số đã bán; bổ sung hoa hồng và quyền tư liệu rồi nhấn Lưu. Nếu sản phẩm đã có, trình soạn thảo mở bản cập nhật và giữ lại các trường bạn đã tự chấm/nhập.
+
+Tiện ích chỉ có quyền `activeTab` và `scripting`, chạy khi người dùng bấm, không có quyền đọc cookie hay crawl nền. Không gọi API ẩn, không vượt đăng nhập/captcha, không lấy hoa hồng tài khoản hoặc tự tạo link affiliate. Chỉ đọc tiêu đề, dữ liệu sản phẩm có cấu trúc và văn bản trang đang mở; giao diện đăng nhập hoặc trang không phải chi tiết sản phẩm sẽ báo lỗi. Cách hiển thị Shopee có thể thay đổi, khiến trường dữ liệu không đọc được: khi đó nhập thủ công. Giá có nhiều mức không rõ ràng được để trống; doanh số viết tắt được ghi chú xấp xỉ và chưa xác định kỳ thống kê. Điểm shop và quyền tư liệu không tự điền.
+
+Bản nháp đi qua URL fragment (không phải query gửi máy chủ); VideoDesk xóa fragment khi đọc và chỉ lưu sau khi bạn xác nhận. Chỉ thông tin sản phẩm cùng thời điểm và ghi chú thu thập được chuyển; không có mật khẩu/token/cookie. Mốc thời gian và ghi chú giữ trong bản sao lưu JSON, không có trong mẫu CSV hiện tại.
+
+Môi trường phát triển hiện không được phép truy cập Shopee, nên kiểm thử bộ đọc dùng trang/dữ liệu mô phỏng, chưa khẳng định đọc thành công mọi sản phẩm thật. GitHub Pages vẫn không tự fetch Shopee chỉ từ URL: cần tiện ích trên trình duyệt của người dùng. Bản này hỗ trợ link đầy đủ `shopee.vn/product/shopId/itemId` và đường dẫn `...-i.shopId.itemId`; link rút gọn cần mở ra trước.
+
+Đóng gói lại khi sửa tiện ích (Python 3, chạy từ thư mục kho mã):
+
+```python
+from pathlib import Path
+from zipfile import ZipFile, ZIP_DEFLATED
+with ZipFile('public/videodesk-shopee-extension.zip', 'w', ZIP_DEFLATED) as archive:
+    for path in sorted(Path('public/extension').iterdir()):
+        if path.is_file():
+            archive.write(path, path.name)
+```

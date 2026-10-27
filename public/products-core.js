@@ -1,11 +1,22 @@
 export const columns = ['name','platform','category','url','price','commission','rating','sold','shopRating','demo','rights'];
 const ranges = {price:[0,1e12],commission:[0,100],rating:[0,5],sold:[0,1e12],shopRating:[0,5],demo:[1,5]};
+export function shopeeLink(value) {
+  try {
+    const u=new URL(value);
+    if(!['https:','http:'].includes(u.protocol)||!['shopee.vn','www.shopee.vn'].includes(u.hostname)||u.username||u.password||u.port)return null;
+    const ids=u.pathname.match(/^\/product\/(\d+)\/(\d+)\/?$/)||u.pathname.match(/-i\.(\d+)\.(\d+)\/?$/);
+    return ids?`https://shopee.vn/product/${ids[1]}/${ids[2]}`:null;
+  }catch{return null;}
+}
 export function normalizeProduct(raw) {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw Error('Mỗi sản phẩm phải là một đối tượng.');
   const p = {};
   for (const field of ['name','platform','category','url']) p[field] = String(raw[field] ?? '').trim().slice(0, field === 'url' ? 2000 : 200);
   if (!p.name) throw Error('Thiếu tên sản phẩm.');
   if (p.url) { let u; try {u=new URL(p.url);} catch {throw Error('Liên kết sản phẩm không hợp lệ.');} if (!['https:','http:'].includes(u.protocol)) throw Error('Liên kết chỉ hỗ trợ HTTP/HTTPS.'); }
+  p.url=shopeeLink(p.url)||p.url;
+  p.captureNote=String(raw.captureNote??'').slice(0,2000);
+  p.capturedAt=typeof raw.capturedAt==='string'&&Number.isFinite(Date.parse(raw.capturedAt))?new Date(raw.capturedAt).toISOString():'';
   for (const [field,[min,max]] of Object.entries(ranges)) {
     const input = raw[field];
     if (input == null || String(input).trim() === '') { p[field] = null; continue; }

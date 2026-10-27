@@ -1,8 +1,8 @@
-import { columns, normalizeProduct, importProducts, matches, sortProducts, grossCommission, toCSV } from './products-core.js';
+import { columns, normalizeProduct, importProducts, matches, sortProducts, grossCommission, toCSV, shopeeLink } from './products-core.js';
 const $=id=>document.getElementById(id), form=$('product-form'), filters=$('filters'), storage='videodesk.products.v1';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const num=v=>v==null?'Chưa có':new Intl.NumberFormat('vi-VN',{maximumFractionDigits:2}).format(v);
-let products=[], editing=null;
+let products=[], editing=null, captureMetadata={};
 try {
   const raw=JSON.parse(localStorage.getItem(storage)||'[]');
   if(!Array.isArray(raw)||raw.length>2000)throw Error();
@@ -26,13 +26,13 @@ function render(){
   $('empty').querySelector('p').textContent=products.length?'Thử giảm điều kiện hoặc xóa bộ lọc. Sản phẩm thiếu dữ liệu bị loại nếu bộ lọc tương ứng đang bật.':'Thêm từng món hoặc tải mẫu CSV để nhập nhiều sản phẩm. Không cần API key hay đăng nhập.';
   $('products').innerHTML=list.map(p=>{
     const missing=[['price','giá'],['commission','hoa hồng'],['rating','đánh giá'],['sold','đã bán'],['shopRating','điểm shop'],['demo','khả năng quay']].filter(([key])=>p[key]==null).map(([,label])=>label);
-    return `<article class="product-card ${p.picked?'picked':''}"><div class="product-top"><div><small>${esc(p.platform||'Chưa có nền tảng')} · ${esc(p.category||'Chưa phân nhóm')}</small><h3>${esc(p.name)}</h3></div><label class="pick"><input type="checkbox" data-pick="${p.id}" ${p.picked?'checked':''}>Chọn</label></div><dl class="product-stats">${[['Giá',num(p.price)+(p.price==null?'':' đ')],['Hoa hồng',num(p.commission)+(p.commission==null?'':'%')],['Điểm sản phẩm',num(p.rating)+(p.rating==null?'':' / 5')],['Đã bán',num(p.sold)],['Điểm shop',num(p.shopRating)+(p.shopRating==null?'':' / 5')],['Dễ làm video · tự chấm',num(p.demo)+(p.demo==null?'':' / 5')]].map(([k,v])=>`<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl><div class="gross">Hoa hồng ước tính / đơn: <strong>${num(grossCommission(p))}${grossCommission(p)==null?'':' đ'}</strong><br>Trước hoàn đơn, thuế và điều kiện chiến dịch.</div><p class="rights">Quyền tư liệu: ${p.rights==='yes'?'bạn đã xác nhận':p.rights==='no'?'không được phép dùng':'chưa xác nhận'}</p>${missing.length?`<p class="missing">Còn thiếu: ${missing.join(', ')}.</p>`:''}<div class="product-actions">${p.url?`<a class="subtle" href="${esc(p.url)}" target="_blank" rel="noopener noreferrer">Xem sản phẩm ↗</a>`:''}<button class="subtle" data-edit="${p.id}">Sửa</button><button class="subtle" data-delete="${p.id}">Xóa</button></div></article>`;
+    return `<article class="product-card ${p.picked?'picked':''}"><div class="product-top"><div><small>${esc(p.platform||'Chưa có nền tảng')} · ${esc(p.category||'Chưa phân nhóm')}</small><h3>${esc(p.name)}</h3></div><label class="pick"><input type="checkbox" data-pick="${p.id}" ${p.picked?'checked':''}>Chọn</label></div><dl class="product-stats">${[['Giá',num(p.price)+(p.price==null?'':' đ')],['Hoa hồng',num(p.commission)+(p.commission==null?'':'%')],['Điểm sản phẩm',num(p.rating)+(p.rating==null?'':' / 5')],['Đã bán',num(p.sold)],['Điểm shop',num(p.shopRating)+(p.shopRating==null?'':' / 5')],['Dễ làm video · tự chấm',num(p.demo)+(p.demo==null?'':' / 5')]].map(([k,v])=>`<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl><div class="gross">Hoa hồng ước tính / đơn: <strong>${num(grossCommission(p))}${grossCommission(p)==null?'':' đ'}</strong><br>Trước hoàn đơn, thuế và điều kiện chiến dịch.</div>${p.capturedAt?`<p class="hint">Lấy thông tin: ${esc(new Date(p.capturedAt).toLocaleString('vi-VN'))}</p>`:''}${p.captureNote?`<p class="hint">Ghi chú nguồn: ${esc(p.captureNote)}</p>`:''}<p class="rights">Quyền tư liệu: ${p.rights==='yes'?'bạn đã xác nhận':p.rights==='no'?'không được phép dùng':'chưa xác nhận'}</p>${missing.length?`<p class="missing">Còn thiếu: ${missing.join(', ')}.</p>`:''}<div class="product-actions">${p.url?`<a class="subtle" href="${esc(p.url)}" target="_blank" rel="noopener noreferrer">Xem sản phẩm ↗</a>`:''}<button class="subtle" data-edit="${p.id}">Sửa</button><button class="subtle" data-delete="${p.id}">Xóa</button></div></article>`;
   }).join('');
 }
-function openEditor(p){editing=p?.id||null;form.reset();$('edit-error').textContent='';$('editor-title').textContent=p?'Sửa sản phẩm':'Thêm sản phẩm';for(const c of columns)form.elements[c].value=p?.[c]??(c==='rights'?'unknown':'');$('editor').showModal();}
+function openEditor(p){editing=p?.id||null;captureMetadata={captureNote:p?.captureNote||'',capturedAt:p?.capturedAt||''};form.reset();$('edit-error').textContent='';$('capture-note').textContent=p?.captureNote||'';$('editor-title').textContent=editing?'Sửa sản phẩm':p?'Kiểm tra thông tin trước khi lưu':'Thêm sản phẩm';for(const c of columns)form.elements[c].value=p?.[c]??(c==='rights'?'unknown':'');$('editor').showModal();}
 $('add').onclick=()=>openEditor();$('close').onclick=()=>$('editor').close();
 form.onsubmit=e=>{e.preventDefault();try{
-  const value=normalizeProduct(Object.fromEntries(new FormData(form)));
+  const value=normalizeProduct({...Object.fromEntries(new FormData(form)),...captureMetadata});
   if(!editing&&products.length>=2000)throw Error('Tối đa 2.000 sản phẩm.');
   if(value.url&&products.some(p=>p.id!==editing&&p.url===value.url))throw Error('Liên kết này đã có trong danh sách.');
   if(editing)products=products.map(p=>p.id===editing?{...p,...value}:p);else products.unshift({...value,id:crypto.randomUUID(),picked:false});
@@ -57,3 +57,23 @@ $('file').onchange=async e=>{try{
   products.push(...additions);$('message').textContent=`Đã nhập ${additions.length} sản phẩm; bỏ qua ${duplicates} liên kết trùng.`;persist();options();render();
 }catch(error){$('message').textContent=`Không nhập được: ${error.message} Danh sách hiện có được giữ nguyên.`;}finally{e.target.value='';}};
 options();render();
+function receiveDraft(){
+  if(!location.hash.startsWith('#import-product='))return;
+  const payload=location.hash.slice('#import-product='.length);
+  history.replaceState(null,'',location.pathname+location.search);
+  try{
+    if(payload.length>24000)throw Error('Dữ liệu sản phẩm quá lớn.');
+    const draft=normalizeProduct(JSON.parse(decodeURIComponent(payload)));
+    if(!shopeeLink(draft.url))throw Error('Bản nháp phải có liên kết sản phẩm Shopee hợp lệ.');
+    const old=products.find(p=>p.url===draft.url);
+    openEditor(old?{...old,...draft,commission:old.commission,shopRating:old.shopRating,demo:old.demo,rights:old.rights,category:old.category}:draft);
+    $('message').textContent=old?'Đã có sản phẩm này: kiểm tra bản cập nhật trước khi lưu.':'Đã nhận bản nháp. Kiểm tra tên, giá, biến thể và các số liệu còn thiếu trước khi lưu.';
+  }catch(e){$('message').textContent='Không nhận được sản phẩm: '+e.message;}
+}
+$('open-product').onclick=()=>{
+  const url=shopeeLink($('product-link').value.trim());
+  if(!url){$('link-status').textContent='Nhập link đầy đủ dạng shopee.vn/product/shopId/itemId hoặc tên-sản-phẩm-i.shopId.itemId. Với link rút gọn, mở link rồi sao chép địa chỉ đầy đủ.';return;}
+  window.open(url,'_blank','noopener,noreferrer');
+  $('link-status').textContent='Đã yêu cầu mở trang Shopee. Khi trang tải xong, bấm tiện ích VideoDesk → Lấy thông tin trang đang mở. Nếu trình duyệt chặn tab mới, hãy cho phép popup.';
+};
+window.addEventListener('hashchange',receiveDraft);receiveDraft();
