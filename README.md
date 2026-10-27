@@ -40,3 +40,15 @@ Chủ website cần cấu hình một lần trong Google Cloud (không thể b�
 Access token chỉ nằm trong bộ nhớ tab, không ghi localStorage hoặc tệp xuất; hết hạn hoặc tải lại trang thì cần đăng nhập lại. Client ID công khai được lưu tại trình duyệt để không phải nhập lại. Khi ngắt kết nối, ứng dụng xóa token ngay và yêu cầu Google thu hồi quyền. Có thể quản lý quyền tại https://myaccount.google.com/connections. Danh sách video vẫn là dữ liệu cục bộ, không được đồng bộ lên tài khoản Google.
 
 Chưa có OAuth Client ID hợp lệ thì nút đăng nhập sẽ hướng dẫn cấu hình; tìm kiếm bằng API key và lưu liên kết vẫn dùng được. Kiểm thử tự động mô phỏng đăng nhập/cấp quyền/ngắt kết nối; đăng nhập thật cần Client ID và tài khoản test được cấu hình như trên.
+
+## Bộ lọc sản phẩm affiliate
+
+Mở mục **Lọc sản phẩm** hoặc `products.html` trên Pages. Không cần đăng nhập/API key cho tính năng này. Công cụ không tự truy cập TikTok Shop, Shopee hoặc xác minh dữ liệu của shop.
+
+- Thêm/sửa từng sản phẩm hoặc nhập danh sách CSV/JSON tối đa 2.000 mục, 5 MB. Tải mẫu CSV và giữ nguyên tên cột. Dữ liệu nhập do người dùng cung cấp; file CSV xuất từ sàn có thể cần đổi tên cột/chuẩn hóa trước khi nhập.
+- Lọc theo giá, % hoa hồng, điểm sản phẩm/shop, số đã bán, nền tảng, nhóm hàng, mức dễ làm video tự chấm và quyền sử dụng tư liệu tự xác nhận. Bộ lọc bỏ qua sản phẩm thiếu số liệu đang được xét; để trống ngưỡng để không xét. Preset người mới chỉ là ngưỡng tham khảo, không dự báo hiệu quả bán.
+- Sắp xếp theo hoa hồng ước tính/đơn, % hoa hồng, đánh giá, số đã bán hoặc mức dễ làm video. Hoa hồng ước tính bằng giá × % hoa hồng, chưa xét hoàn đơn, thuế hoặc điều kiện/giới hạn chiến dịch.
+- Đánh dấu **Chọn** để tạo danh sách ngắn, xuất các mục đã chọn sang CSV. **Sao lưu tất cả** tải JSON, giữ cả trạng thái lựa chọn khi nhập lại. Dữ liệu lưu trên trình duyệt hiện tại, không tự đồng bộ.
+- Khi nhập, liên kết giống hệt đã tồn tại được bỏ qua; mục không có liên kết vẫn được thêm. Kiểm tra số kỳ doanh số và thang điểm trước khi so sánh, không trộn số toàn thời gian với số 30 ngày.
+
+Các cột CSV: `name,platform,category,url,price,commission,rating,sold,shopRating,demo,rights`. Chỉ `name` bắt buộc. Giá là VND không có dấu phân cách; `commission=10` là 10%; điểm từ 0–5; `sold` là số nguyên; `demo` từ 1–5; `rights` là `yes`, `no`, `unknown`. Ô trống là chưa biết. CSV dùng dấu phẩy ngăn cột và dấu chấm thập phân, UTF-8.
