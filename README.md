@@ -94,3 +94,20 @@ Cập nhật gói ZIP, giải nén thay nội dung thư mục tiện ích cũ v�
 Chế độ này dùng `optional_host_permissions` chỉ sau khi bạn đồng ý; bản cũ chỉ đọc khi click từng trang vẫn dùng `activeTab`. Có thể thu hồi quyền Shopee trong quản lý tiện ích. Nghiên cứu dừng khi gặp đăng nhập/xác minh, trang chuyển hướng không hỗ trợ hoặc không đọc được kết quả tìm kiếm; dữ liệu đã đọc có thể xuất trước khi thử lại. Công cụ chưa có kết nối chính thức để lấy hoa hồng affiliate cá nhân, chất lượng shop, nguồn video được cấp quyền hoặc đồng bộ tài khoản.
 
 Kiểm thử: 13 kiểm thử Node và luồng trình duyệt mô phỏng Chrome API/trang Shopee (tìm kiếm, bỏ trùng, đọc chi tiết, chấm mức phù hợp, lưu, nhập cả lượt, từ chối quyền và dừng trước màn hình đăng nhập). Môi trường vẫn chặn Shopee nên chưa xác minh chạy thành công trên tài khoản/trang Shopee thật. Không hứa đọc được mọi sản phẩm; giao diện và khả năng truy cập của sàn quyết định các trường lấy được.
+
+## Quét một sản phẩm để đưa cho AI — tiện ích 1.2.0
+
+Cập nhật ZIP, giải nén thay bản cũ và nhấn Reload trong quản lý tiện ích. Sau đó:
+
+1. Mở trang sản phẩm Shopee Việt Nam, chọn biến thể mong muốn; mở mục mô tả/chi tiết nếu đang thu gọn và chờ tải xong.
+2. Bấm biểu tượng VideoDesk → **Quét hồ sơ cho AI · 1 lần bấm**.
+3. Tab hồ sơ tự mở: kiểm tra tên, giá, thống kê, mô tả do nhà bán cung cấp, thông số, phân loại có thể đọc được, ảnh và liên kết video nguồn. Những mục chưa đọc được được liệt kê riêng.
+4. Chọn nền tảng, độ dài và đối tượng xem; bổ sung ghi chú nếu có. Nhấn **Sao chép hồ sơ + yêu cầu cho AI**, dán vào AI bạn dùng. Có thể tải Markdown/JSON hoặc đưa phần thông tin cơ bản vào bộ lọc VideoDesk.
+
+Đầu ra chứa yêu cầu AI viết ba góc nội dung, hook, một kịch bản theo mốc thời gian, lời đọc, chữ trên màn hình, cảnh cần quay, prompt ảnh minh họa, hướng dẫn dựng dọc 9:16, caption và checklist. Tiện ích chỉ chuẩn bị dữ liệu và yêu cầu, chưa tự gọi AI hay xuất ảnh/video đã dựng. Không cần API key.
+
+Ảnh/video là liên kết nguồn được phát hiện trên trang, không phải tệp đã tải và không tự cấp quyền sử dụng. Chỉ lấy media HTTPS từ các miền Shopee/CDN được hỗ trợ, không lấy ảnh bình luận hoặc tên người đánh giá. Ảnh lớn gần tiêu đề cần kiểm tra lại có đúng sản phẩm; liên kết có thể hết hạn. Nếu AI không tải được ảnh từ URL, bạn cần đính kèm ảnh đã lưu và được phép sử dụng. Video dạng blob/stream không có link công khai sẽ được báo chưa có.
+
+Mô tả/thông số chỉ là thông tin nguồn, không được công cụ kiểm chứng; không suy ra hiệu quả, độ bền, trải nghiệm thật hoặc doanh thu. Bộ yêu cầu AI ghi rõ không bịa dữ liệu thiếu và bỏ qua chỉ dẫn lẫn trong văn bản trang bán hàng. Hồ sơ gần nhất được lưu cục bộ tại origin tiện ích, không gửi lên máy chủ/AI tự động; có nút xóa. Nội dung bạn sao chép/tải ra ngoài không bị xóa cùng hồ sơ.
+
+Đã kiểm thử 14 trường hợp Node và luồng trình duyệt mô phỏng: bấm quét → lấy mô tả/thông số/biến thể/ảnh nguồn → tạo hồ sơ → đổi nền tảng/độ dài → sao chép → tải JSON → xóa. Chưa xác minh trang Shopee thật vì môi trường phát triển chặn truy cập sàn; giao diện và nội dung thực tế quyết định trường nào đọc được.
