@@ -25,3 +25,18 @@ Workflow chỉ xuất bản thư mục `public`. Các đường dẫn tương đ
 Node.js 22+: chạy `npm start`, mở http://localhost:3000. Windows có thể mở `start-windows.bat`. Hoặc phục vụ thư mục `public` bằng bất kỳ máy chủ tĩnh nào. Không cần cài thư viện ngoài. Giao diện gọi Google trực tiếp và dùng key nhập trong tab.
 
 `npm test` kiểm tra luồng tìm kiếm tĩnh bằng API giả lập, lỗi quota, thêm liên kết không key, xử lý URL và HTTP cục bộ. Kiểm tra tìm kiếm thật cần key hợp lệ và quota. Các miền cần dùng: `www.googleapis.com`, `i.ytimg.com`, `www.youtube.com`.
+
+## Đăng nhập Google / kết nối YouTube
+
+Website dùng Google Identity Services, xin duy nhất quyền `youtube.readonly` để đọc tên kênh và tìm kiếm bằng phiên được cấp quyền. Không nhận mật khẩu, không tự thích, đăng bình luận, đăng ký kênh hoặc thay đổi tài khoản. Phiên kết nối của ứng dụng khác phiên đăng nhập trên youtube.com; mở video trên YouTube để tương tác trực tiếp.
+
+Chủ website cần cấu hình một lần trong Google Cloud (không thể bật OAuth chỉ bằng mã GitHub Pages):
+
+1. Bật **YouTube Data API v3** cho dự án.
+2. Trong **Google Auth Platform**, cấu hình Branding, Audience và Data Access cho quyền `https://www.googleapis.com/auth/youtube.readonly`. Nếu ứng dụng ở trạng thái Testing, thêm địa chỉ Google của người dùng vào Test users. Đưa ứng dụng cho người dùng rộng rãi có thể cần Google xác minh quyền nhạy cảm.
+3. Tạo **OAuth Client ID → Web application**. Thêm **Authorized JavaScript origins**: `https://tai23082004l02-svg.github.io` (không thêm `/game-mobile/`). Để thử cục bộ thêm `http://localhost:3000`. Luồng popup token không cần redirect URI phía máy chủ.
+4. Trên VideoDesk mở **Cài đặt kết nối**, dán Client ID có đuôi `.apps.googleusercontent.com`, nhấn **Áp dụng**, sau đó **Đăng nhập Google**. Client ID là công khai; tuyệt đối không nhập Client Secret. Cho phép popup và sử dụng Chrome/Safari thay vì trình duyệt nhúng trong ứng dụng nhắn tin nếu Google chặn đăng nhập.
+
+Access token chỉ nằm trong bộ nhớ tab, không ghi localStorage hoặc tệp xuất; hết hạn hoặc tải lại trang thì cần đăng nhập lại. Client ID công khai được lưu tại trình duyệt để không phải nhập lại. Khi ngắt kết nối, ứng dụng xóa token ngay và yêu cầu Google thu hồi quyền. Có thể quản lý quyền tại https://myaccount.google.com/connections. Danh sách video vẫn là dữ liệu cục bộ, không được đồng bộ lên tài khoản Google.
+
+Chưa có OAuth Client ID hợp lệ thì nút đăng nhập sẽ hướng dẫn cấu hình; tìm kiếm bằng API key và lưu liên kết vẫn dùng được. Kiểm thử tự động mô phỏng đăng nhập/cấp quyền/ngắt kết nối; đăng nhập thật cần Client ID và tài khoản test được cấu hình như trên.

@@ -1,8 +1,11 @@
 import { findVideos } from './youtube.js';
+import { setupAuth } from './auth.js';
 const $ = id => document.getElementById(id);
 const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const valid = v => v && /^[\w-]{11}$/.test(v.id) && typeof v.snippet?.title === 'string';
 let saved = [], results = [], mode = 'discover', key = '', busy = false;
+try { $('client-id').value = localStorage.getItem('videodesk.clientId') || ''; } catch {}
+const auth = setupAuth({loginButton: $('login'), logoutButton: $('logout'), status: $('account-status'), clientInput: $('client-id'), onChange: () => {}});
 try { saved = JSON.parse(localStorage.getItem('videodesk.saved') || '[]').filter(valid); } catch {}
 const number = n => n == null ? 'Không có' : new Intl.NumberFormat('vi-VN').format(n);
 function persist() { try { localStorage.setItem('videodesk.saved', JSON.stringify(saved)); } catch { $('status').textContent = 'Không thể lưu vào trình duyệt. Hãy xuất JSON để giữ danh sách.'; } $('count').textContent = saved.length; }
@@ -20,13 +23,13 @@ function render() {
 function switchMode(next) { mode = next; $('discover').classList.toggle('active', next==='discover'); $('library').classList.toggle('active',next==='library'); $('heading').innerHTML=next==='library'?'Những video<br><span>bạn muốn giữ lại.</span>':'Ý tưởng hay bắt đầu từ<br><span>một video.</span>'; $('search-form').hidden=next==='library'; $('library-actions').hidden=next!=='library'; $('results-title').textContent=next==='library'?'Danh sách đã lưu':'Kết quả khám phá'; $('status').textContent=''; render(); }
 $('discover').onclick=()=>switchMode('discover'); $('library').onclick=()=>switchMode('library');
 for (const id of ['settings','settings-top']) $(id).onclick=()=>$('settings-dialog').showModal();
-$('save-key').onclick=()=>{key=$('api-key').value.trim(); $('settings-dialog').close(); $('api-key').value=''; $('status').textContent=key?'Đã áp dụng API key cho tab hiện tại.':'Đã xóa API key của tab.';};
+$('save-key').onclick=()=>{key=$('api-key').value.trim(); try { localStorage.setItem('videodesk.clientId', $('client-id').value.trim()); } catch {} $('settings-dialog').close(); $('api-key').value=''; $('status').textContent='Đã áp dụng cài đặt. Bạn có thể nhấn Đăng nhập Google để kết nối YouTube.';};
 $('search-form').onsubmit=async event=>{
   event.preventDefault(); if(busy) return;
   const q=$('query').value.trim(); if(!q) return;
   busy=true; $('search-button').disabled=true; $('status').textContent='Đang lấy dữ liệu từ YouTube…';
   try {
-    const data=await findVideos(q,key,$('order').value);
+    const data=await findVideos(q,key,$('order').value,fetch,auth.currentToken());
     results=data.videos.filter(valid); render(); $('results-title').textContent=`Kết quả khám phá · ${results.length}`; $('status').textContent=data.notice || (results.length?'Dữ liệu được lấy theo yêu cầu; số liệu có thể thay đổi.':'Không tìm thấy video. Hãy thử từ khóa khác.');
   } catch(error){$('status').textContent=error.message || 'Không thể kết nối máy chủ.';}
   finally {busy=false; $('search-button').disabled=false;}
