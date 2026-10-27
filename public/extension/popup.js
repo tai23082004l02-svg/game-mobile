@@ -1,3 +1,4 @@
+document.getElementById('research').onclick=()=>chrome.tabs.create({url:chrome.runtime.getURL('research.html')});
 document.getElementById('capture').onclick=async()=>{
   const button=document.getElementById('capture'),status=document.getElementById('status');
   button.disabled=true;status.textContent='Đang đọc thông tin trang…';

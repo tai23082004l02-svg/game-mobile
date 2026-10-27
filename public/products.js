@@ -76,4 +76,35 @@ $('open-product').onclick=()=>{
   window.open(url,'_blank','noopener,noreferrer');
   $('link-status').textContent='Đã yêu cầu mở trang Shopee. Khi trang tải xong, bấm tiện ích VideoDesk → Lấy thông tin trang đang mở. Nếu trình duyệt chặn tab mới, hãy cho phép popup.';
 };
-window.addEventListener('hashchange',receiveDraft);receiveDraft();
+let researchDraft=[];
+function receiveResearch(){
+ if(!location.hash.startsWith('#import-research='))return;
+ const payload=location.hash.slice('#import-research='.length);
+ history.replaceState(null,'',location.pathname+location.search);
+ try{
+  if(payload.length>180000)throw Error('Kết quả quá lớn. Hãy nhập tệp JSON thay thế.');
+  const values=JSON.parse(decodeURIComponent(payload));
+  if(!Array.isArray(values)||!values.length||values.length>40)throw Error('Cần từ 1–40 sản phẩm.');
+  researchDraft=values.map(p=>normalizeProduct(p));
+  if(researchDraft.some(p=>!shopeeLink(p.url)))throw Error('Kết quả phải có liên kết sản phẩm Shopee hợp lệ.');
+  const dedup=new Map(researchDraft.map(p=>[p.url,p]));researchDraft=[...dedup.values()];
+  $('research-summary').textContent=`${researchDraft.length} sản phẩm trong lượt nghiên cứu này.`;
+  $('research-items').innerHTML=researchDraft.map(p=>`<p><b>${esc(p.name)}</b><br>${num(p.price)}${p.price==null?'':' đ'} · ${num(p.rating)}/5 · Đã bán ${num(p.sold)}</p>`).join('');
+  $('research-review').showModal();
+ }catch(e){researchDraft=[];$('message').textContent='Không nhận được kết quả nghiên cứu: '+e.message;}
+}
+$('cancel-research').onclick=()=>{researchDraft=[];$('research-review').close();};
+$('save-research').onclick=()=>{
+ const existing=new Map(products.map(p=>[p.url,p]));
+ const newCount=researchDraft.filter(p=>!existing.has(p.url)).length;
+ if(products.length+newCount>2000){$('research-summary').textContent='Danh sách vượt giới hạn 2.000 sản phẩm. Xuất dữ liệu và dọn danh sách trước khi nhập.';return;}
+ for(const draft of researchDraft){
+  const old=existing.get(draft.url);
+  if(old)Object.assign(old,{...draft,commission:old.commission,shopRating:old.shopRating,demo:old.demo,rights:old.rights,category:old.category||draft.category});
+  else {const p={...draft,id:crypto.randomUUID(),picked:false};products.unshift(p);existing.set(p.url,p);}
+ }
+ $('message').textContent=`Đã lưu/cập nhật ${researchDraft.length} sản phẩm từ lượt nghiên cứu. Hoa hồng còn thiếu cần kiểm tra trong tài khoản affiliate.`;
+ persist();options();render();researchDraft=[];$('research-review').close();
+};
+function receive(){receiveDraft();receiveResearch();}
+window.addEventListener('hashchange',receive);receive();

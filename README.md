@@ -80,3 +80,17 @@ with ZipFile('public/videodesk-shopee-extension.zip', 'w', ZIP_DEFLATED) as arch
         if path.is_file():
             archive.write(path, path.name)
 ```
+
+## Tự nghiên cứu Shopee — tiện ích 1.1.0
+
+Cập nhật gói ZIP, giải nén thay nội dung thư mục tiện ích cũ và nhấn Reload tại `chrome://extensions` / `edge://extensions`. Bấm biểu tượng VideoDesk → **Tự tìm và nghiên cứu sản phẩm** để mở bảng điều khiển trong tab riêng.
+
+1. Bấm **Mở Shopee để đăng nhập**, đăng nhập trực tiếp trên Shopee bằng cùng hồ sơ Chrome/Edge. Bước này không chuyển mật khẩu/cookie đến công cụ, cũng chưa xác minh được tài khoản có Shopee Affiliate hay không.
+2. Chọn chủ đề (phòng trọ/góc làm việc, đồ bếp hoặc vệ sinh) và ngân sách.
+3. Bấm **Bắt đầu nghiên cứu** và cấp quyền đọc `https://shopee.vn/*` nếu được hỏi. Công cụ mở một tab Shopee riêng, thực hiện 3 lượt tìm kiếm bằng từ khóa định sẵn, lấy tối đa 3 mục đầu mỗi lượt, bỏ trùng rồi đọc tối đa 9 trang chi tiết. Không gọi API ẩn hoặc tự tương tác mua hàng. Giữ tab điều khiển mở trong lúc chạy; có nút Dừng. Đóng tab điều khiển sẽ dừng việc điều phối, không tự tiếp tục khi mở lại.
+4. Kết quả được xếp theo mức khớp các tiêu chí: giá lớn hơn 0 trong ngân sách +30, đánh giá từ 4,5/5 +30, số đã bán từ 100 +20. Điểm tối đa 80, không phải xác suất bán được hoặc dự báo doanh thu. Có lý do chọn, cảnh báo và trường dữ liệu thiếu bên cạnh từng món.
+5. Bấm **Mở kết quả trong VideoDesk** rồi **Lưu toàn bộ kết quả** để đưa cả lượt vào bộ lọc; hoặc tải JSON. Không cần nhập từng món. Kết quả lượt đã kết thúc được lưu cục bộ trong tiện ích; không chứa thông tin đăng nhập. Mục trùng link được cập nhật, giữ hoa hồng, điểm shop, quyền tư liệu, điểm dễ quay và lựa chọn trước đó.
+
+Chế độ này dùng `optional_host_permissions` chỉ sau khi bạn đồng ý; bản cũ chỉ đọc khi click từng trang vẫn dùng `activeTab`. Có thể thu hồi quyền Shopee trong quản lý tiện ích. Nghiên cứu dừng khi gặp đăng nhập/xác minh, trang chuyển hướng không hỗ trợ hoặc không đọc được kết quả tìm kiếm; dữ liệu đã đọc có thể xuất trước khi thử lại. Công cụ chưa có kết nối chính thức để lấy hoa hồng affiliate cá nhân, chất lượng shop, nguồn video được cấp quyền hoặc đồng bộ tài khoản.
+
+Kiểm thử: 13 kiểm thử Node và luồng trình duyệt mô phỏng Chrome API/trang Shopee (tìm kiếm, bỏ trùng, đọc chi tiết, chấm mức phù hợp, lưu, nhập cả lượt, từ chối quyền và dừng trước màn hình đăng nhập). Môi trường vẫn chặn Shopee nên chưa xác minh chạy thành công trên tài khoản/trang Shopee thật. Không hứa đọc được mọi sản phẩm; giao diện và khả năng truy cập của sàn quyết định các trường lấy được.
