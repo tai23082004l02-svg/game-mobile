@@ -1,0 +1,222 @@
+{
+  "version": 2,
+  "frame": {
+    "width": 128,
+    "height": 128,
+    "pivot": [
+      64,
+      112
+    ]
+  },
+  "framesPerState": 8,
+  "artScale": 0.72,
+  "deathDrop": 0.273,
+  "states": [
+    "idle",
+    "run",
+    "attack",
+    "skill",
+    "hit",
+    "death"
+  ],
+  "fps": {
+    "idle": 6,
+    "run": 12,
+    "attack": 14,
+    "skill": 14,
+    "hit": 18,
+    "death": 10
+  },
+  "units": {
+    "miner": {
+      "jade": "miner-jade.svg",
+      "ember": "miner-ember.svg"
+    },
+    "sword": {
+      "jade": "sword-jade.svg",
+      "ember": "sword-ember.svg"
+    },
+    "bow": {
+      "jade": "bow-jade.svg",
+      "ember": "bow-ember.svg"
+    },
+    "shield": {
+      "jade": "shield-jade.svg",
+      "ember": "shield-ember.svg"
+    },
+    "spear": {
+      "jade": "spear-jade.svg",
+      "ember": "spear-ember.svg"
+    },
+    "mage": {
+      "jade": "mage-jade.svg",
+      "ember": "mage-ember.svg"
+    }
+  },
+  "effects": {
+    "slash": {
+      "row": 0,
+      "frames": 8
+    },
+    "impact": {
+      "row": 1,
+      "frames": 8
+    },
+    "arrow": {
+      "row": 2,
+      "frames": 8
+    },
+    "fireball": {
+      "row": 3,
+      "frames": 8
+    },
+    "blast": {
+      "row": 4,
+      "frames": 8
+    },
+    "heal": {
+      "row": 5,
+      "frames": 8
+    },
+    "rally": {
+      "row": 6,
+      "frames": 8
+    },
+    "barrier": {
+      "row": 7,
+      "frames": 8
+    },
+    "meteor": {
+      "row": 8,
+      "frames": 8
+    },
+    "frost": {
+      "row": 9,
+      "frames": 8
+    },
+    "coin": {
+      "row": 10,
+      "frames": 8
+    },
+    "dust": {
+      "row": 11,
+      "frames": 8
+    }
+  },
+  "icons": {
+    "miner": {
+      "x": 0,
+      "y": 0,
+      "width": 64,
+      "height": 64
+    },
+    "sword": {
+      "x": 64,
+      "y": 0,
+      "width": 64,
+      "height": 64
+    },
+    "bow": {
+      "x": 128,
+      "y": 0,
+      "width": 64,
+      "height": 64
+    },
+    "shield": {
+      "x": 192,
+      "y": 0,
+      "width": 64,
+      "height": 64
+    },
+    "spear": {
+      "x": 256,
+      "y": 0,
+      "width": 64,
+      "height": 64
+    },
+    "mage": {
+      "x": 320,
+      "y": 0,
+      "width": 64,
+      "height": 64
+    },
+    "volley": {
+      "x": 384,
+      "y": 0,
+      "width": 64,
+      "height": 64
+    },
+    "heal": {
+      "x": 448,
+      "y": 0,
+      "width": 64,
+      "height": 64
+    },
+    "rally": {
+      "x": 0,
+      "y": 64,
+      "width": 64,
+      "height": 64
+    },
+    "meteor": {
+      "x": 64,
+      "y": 64,
+      "width": 64,
+      "height": 64
+    },
+    "gold": {
+      "x": 128,
+      "y": 64,
+      "width": 64,
+      "height": 64
+    },
+    "attack": {
+      "x": 192,
+      "y": 64,
+      "width": 64,
+      "height": 64
+    },
+    "defend": {
+      "x": 256,
+      "y": 64,
+      "width": 64,
+      "height": 64
+    },
+    "retreat": {
+      "x": 320,
+      "y": 64,
+      "width": 64,
+      "height": 64
+    },
+    "star": {
+      "x": 384,
+      "y": 64,
+      "width": 64,
+      "height": 64
+    },
+    "pause": {
+      "x": 448,
+      "y": 64,
+      "width": 64,
+      "height": 64
+    }
+  },
+  "environment": {
+    "meadow": "terrain-meadow.svg",
+    "pass": "terrain-pass.svg",
+    "valley": "terrain-valley.svg",
+    "citadel": "terrain-citadel.svg"
+  },
+  "props": {
+    "file": "props.svg",
+    "cell": [
+      256,
+      256
+    ],
+    "items": {
+      "jadeTower": 0,
+      "emberTower": 1,
+      "goldMine": 2
+    }
+  }
+}

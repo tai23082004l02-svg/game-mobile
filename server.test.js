@@ -13,6 +13,9 @@ test('serves app and validates API requests without external access', async () =
     const base=`http://127.0.0.1:${server.address().port}`;
     const page=await fetch(base); assert.equal(page.status,200); assert.match(await page.text(),/YouTube Workbench/);
     for(const path of ['/app.js','/style.css']) assert.equal((await fetch(base+path)).status,200);
+    for (const [path, mime] of [['/stick-frontier/','text/html'],['/stick-frontier/art.mjs','text/javascript'],['/stick-frontier/library.mjs','text/javascript'],['/stick-frontier/assets/sword-jade.svg','image/svg+xml'],['/stick-frontier/assets/manifest.json','application/json'],['/stick-frontier/sw.js','text/javascript'],['/stick-frontier/app.webmanifest','application/manifest+json']]) {
+      const resource=await fetch(base+path);assert.equal(resource.status,200,path);assert.ok(resource.headers.get('content-type').startsWith(mime),path);
+    }
     const invalid=await fetch(base+'/api/video?url=https://evil.com'); assert.equal(invalid.status,400);assert.match((await invalid.json()).error,/không hợp lệ/);
     assert.equal((await fetch(base+'/missing')).status,404);
     assert.equal((await fetch(base,{method:'POST'})).status,405);

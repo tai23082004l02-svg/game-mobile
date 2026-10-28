@@ -1,15 +1,33 @@
-# Vệ Binh Biên Giới
+# Vệ Binh Biên Giới — v2
 
-Bản chơi thử game chiến thuật người que, giao diện tiếng Việt, tối ưu cảm ứng. Đồ họa vector được vẽ bằng Canvas, không sử dụng tài nguyên của Stick War hoặc game trong ảnh tham khảo.
+Game chiến thuật người que chơi đơn, giao diện tiếng Việt, điều khiển cảm ứng. Mở `https://tai23082004l02-svg.github.io/game-mobile/stick-frontier/` và xoay ngang điện thoại.
 
-## Chơi
+## Đã triển khai
 
-Mở `https://tai23082004l02-svg.github.io/game-mobile/stick-frontier/` sau khi workflow Pages triển khai thành công. Xoay ngang điện thoại để có góc nhìn rộng. Chọn màn, tuyển thợ mỏ và quân, rồi chọn Tấn công. Kéo bản đồ để xem căn cứ địch. Có 5 màn, 4 loại đơn vị, 3 mệnh lệnh, hàng chờ huấn luyện, tạm dừng và lưu màn đã mở bằng localStorage.
+- 20 màn theo 4 vùng đất, đội trưởng tinh nhuệ ở các màn cuối vùng; mở màn tuần tự, lưu sao và thời gian tốt nhất.
+- 6 loại quân với kỹ năng tự động: thợ mỏ, kiếm sĩ, cung thủ, hộ vệ, thương binh và pháp sư. Thương binh mở màn 3, pháp sư mở màn 5.
+- 4 kỹ năng chỉ huy: Mưa tên, Hồi phục, Chiến kỳ và Thiên thạch; kiểm tra linh lực, hồi chiêu, vùng tác dụng và thời gian rơi.
+- Bộ đồ họa gốc: 12 sheet × 48 khung nhân vật, 12 hiệu ứng × 8 khung, 4 địa hình, 6 chân dung, 16 biểu tượng, đạo cụ và ảnh bìa.
+- Hoạt ảnh gắn với chiến đấu; đạn bay, sát thương, giáp, giảm sát thương, làm chậm và xác bị hạ.
+- Thư viện Quân đoàn & kỹ năng, Xưởng đồ họa có xem trước và tải SVG/PNG/ZIP.
+- Tạm dừng, thu phóng theo kích thước màn hình, kéo bản đồ, âm báo tùy chọn, hủy lính cuối hàng chờ hoàn vàng.
+- Service worker lưu tài nguyên sau khi cài cache thành công, để mở lại và chơi offline. Không cần máy chủ game. Nếu trình duyệt xóa bộ nhớ/cache hoặc lần tải đầu chưa hoàn tất, phải tải lại bằng mạng.
 
-## Phát triển
+## Chạy và kiểm tra
 
-Phục vụ thư mục `public` bằng một HTTP server tĩnh, ví dụ `python3 -m http.server 8080 --directory public`, rồi mở `/stick-frontier/`. Không có bước cài thư viện hoặc build. Chạy `node --test stick-frontier.test.mjs` để kiểm tra mô phỏng. Workflow Pages hiện có chạy toàn bộ `npm test` và triển khai thư mục `public`.
+`npm start`, mở `http://localhost:3000/stick-frontier/`; hoặc phục vụ thư mục `public` bằng một HTTP server tĩnh. Không cần cài thư viện để chạy game.
 
-`engine.mjs` chứa logic chiến đấu độc lập giao diện; `game.mjs` chứa vẽ Canvas, điều khiển và âm thanh tổng hợp tùy chọn. `style.css` hỗ trợ cả dọc/ngang và vùng an toàn màn hình.
+`npm test` chạy kiểm tra toàn kho, `node stick-frontier.test.mjs` chỉ kiểm tra game. Chi tiết bộ đồ họa và cách dựng lại trong `ASSET-GUIDE.md`. Công cụ QA và xuất PNG dùng Playwright, chỉ cần ở môi trường phát triển. Sau khi mở server, chạy `node tools/frontier-browser-check.mjs` để kiểm tra trình duyệt, cảm ứng, tải PNG và offline. Ảnh QA lưu trong `work/frontier-qa/`.
 
-Tiến trình chỉ lưu màn đã mở, không khôi phục trận đang chơi. Chưa tích hợp quảng cáo, tài khoản, multiplayer, service worker hoặc đóng gói APK/AAB. Sau khi tải trang, trận đấu không cần gọi mạng; mở lại hoàn toàn offline chưa được đảm bảo. Bản thử cần tiếp tục cân bằng và kiểm tra trực tiếp trên thiết bị trước phát hành Android.
+## Cấu trúc
+
+- `engine.mjs`: mô phỏng độc lập giao diện và dữ liệu quân, kỹ năng, chiến dịch.
+- `art.mjs`: tải atlas, cắt khung và vẽ.
+- `game.mjs`: vòng chơi, giao diện, nhập cảm ứng, lưu tiến trình.
+- `library.mjs`: thư viện quân và xưởng đồ họa.
+- `assets/manifest.json`: kích thước, điểm neo, hàng hoạt ảnh, tọa độ hiệu ứng.
+- `tools/build-frontier-assets.mjs`: nguồn vector có thể dựng lại.
+
+## Giới hạn hiện tại
+
+Đây là bản web nâng cấp, chưa phải APK/AAB. Chưa tích hợp quảng cáo, mua hàng, đồng bộ cloud hoặc PvP. Tiến trình lưu màn/sao/thời gian/cài đặt trên trình duyệt, chưa lưu giữa trận. Cân bằng 20 màn là bước đầu và vẫn cần phản hồi chơi thật. Kiểm thử trình duyệt giả lập cảm ứng không thay thế việc thử trên S23 Ultra thật.

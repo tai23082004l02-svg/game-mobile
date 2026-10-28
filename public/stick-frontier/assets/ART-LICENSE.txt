@@ -1,0 +1,1 @@
+Original artwork for Vệ Binh Biên Giới, created for the owner of tai23082004l02-svg/game-mobile. Commercial use, modification and distribution in this game are permitted. Vector sources: tools/build-frontier-assets.mjs. AI-generated cover: frontier-cover.png. No third-party game sprites are included. Fonts use the device system font.
