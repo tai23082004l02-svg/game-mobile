@@ -50,6 +50,8 @@ export const server = http.createServer(async (req, res) => {
     }
     const files = { '/': ['index.html', 'text/html'], '/app.js': ['app.js', 'text/javascript'], '/auth.js': ['auth.js', 'text/javascript'], '/youtube.js': ['youtube.js', 'text/javascript'], '/style.css': ['style.css', 'text/css'] };
     for (const [path, mime] of [['products.html','text/html'],['products.js','text/javascript'],['products-core.js','text/javascript'],['products.css','text/css'],['videodesk-shopee-extension.zip','application/zip']]) files['/' + path] = [path, mime];
+    for (const [path, mime] of [['index.html','text/html'],['game.mjs','text/javascript'],['engine.mjs','text/javascript'],['style.css','text/css']]) files['/stick-frontier/' + path] = ['stick-frontier/' + path, mime];
+    files['/stick-frontier/'] = files['/stick-frontier/index.html'];
     const file = files[url.pathname];
     if (!file) return send(404, { error: 'Not found' });
     res.writeHead(200, { 'Content-Type': `${file[1]}; charset=utf-8`, 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'no-referrer' });
