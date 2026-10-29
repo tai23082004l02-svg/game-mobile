@@ -52,7 +52,7 @@ export const server = http.createServer(async (req, res) => {
     for (const [path, mime] of [['products.html','text/html'],['products.js','text/javascript'],['products-core.js','text/javascript'],['products.css','text/css'],['videodesk-shopee-extension.zip','application/zip']]) files['/' + path] = [path, mime];
     for (const [path, mime] of [['index.html','text/html'],['game.mjs','text/javascript'],['engine.mjs','text/javascript'],['style.css','text/css']]) files['/stick-frontier/' + path] = ['stick-frontier/' + path, mime];
     files['/stick-frontier/'] = files['/stick-frontier/index.html'];
-    const gameAsset = url.pathname.match(/^\/stick-frontier\/(assets\/[a-z0-9-]+\.(?:svg|png|json|zip|txt)|(?:art|library)\.mjs|sw\.js|app\.webmanifest)$/);
+    const gameAsset = url.pathname.match(/^\/stick-frontier\/(assets\/[a-z0-9-]+\.(?:svg|png|json|zip|txt)|(?:art|library|character-layout)\.mjs|sw\.js|app\.webmanifest)$/);
     if (gameAsset) {
       const ext = gameAsset[1].split('.').pop();
       const mime = {svg:'image/svg+xml',png:'image/png',json:'application/json',zip:'application/zip',txt:'text/plain',mjs:'text/javascript',js:'text/javascript',webmanifest:'application/manifest+json'}[ext];

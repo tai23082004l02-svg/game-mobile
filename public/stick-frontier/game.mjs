@@ -55,10 +55,10 @@ function draw(now){
  const terrain=art.images.get(`terrain-${battle.config.terrain}.svg`);if(terrain)ctx.drawImage(terrain,-worldOffset,0,Math.max(1800,view),480);
  const mine=art.images.get('gold-mine.png');if(mine){ctx.save();if(battle.mine.flash>0)ctx.globalAlpha=.88;ctx.drawImage(mine,battle.mine.x-110,278,240,160);ctx.restore();}else art.prop(ctx,2,battle.mine.x,413,180);text(`MỎ VÀNG · ${battle.units.filter(u=>!u.team&&u.type==='miner').length}/6 THỢ`,battle.mine.x,287,10,'#6c521e');tower(battle.bases[0],0);tower(battle.bases[1],1);
  for(const u of [...battle.corpses,...battle.units].sort((a,b)=>a.lane-b.lane)){
-  if(u.x<camera-100||u.x>camera+view+100)continue;const y=381+u.lane*12,size=u.elite?178:148;art.unit(ctx,u,u.x,y,size);
-  if(u.type==='miner'&&u.cargo>0&&u.hp>0)text(`◆ ${u.cargo}`,u.x,y-80,10,'#735018');
+  if(u.x<camera-100||u.x>camera+view+100)continue;const y=381+u.lane*12,size=u.elite?188:160;art.unit(ctx,u,u.x,y,size);
+  if(u.type==='miner'&&u.cargo>0&&u.hp>0)text(`◆ ${u.cargo}`,u.x,y-106,10,'#735018');
   if(u.elite)text('◆',u.x,y-size*.9,13,'#e6b85d');
-  if(u.hp>0&&u.hp<u.max){ctx.fillStyle='#17313b';ctx.fillRect(u.x-18,y-76,36,4);ctx.fillStyle=u.team?'#f4b19a':'#a6efdb';ctx.fillRect(u.x-18,y-76,36*Math.max(0,u.hp/u.max),4);}
+  if(u.hp>0&&u.hp<u.max){ctx.fillStyle='#17313b';ctx.fillRect(u.x-18,y-103,36,4);ctx.fillStyle=u.team?'#f4b19a':'#a6efdb';ctx.fillRect(u.x-18,y-103,36*Math.max(0,u.hp/u.max),4);}
   if(u.barrier>0)art.effect(ctx,'barrier',(now%800)/800,u.x,y-36,90,u.team);
   if(u.slow>0)art.effect(ctx,'frost',(now%800)/800,u.x,y-10,50,u.team);
   if(!u.team&&battle.rally>0)circle(u.x,y+2,13,null,'#b9f6dd88');
@@ -83,6 +83,6 @@ function finished(){reported=true;cancelTarget();const win=battle.result==='win'
  const actions=[['Chọn màn',menu],['Chơi lại',()=>start(battle.level)]];if(win&&battle.level<LEVELS.length-1)actions.push(['Màn tiếp theo',()=>start(battle.level+1),true]);dialog(win?'VÙNG ĐẤT ĐÃ ĐƯỢC GIẢI PHÓNG':'CĂN CỨ ĐÃ THẤT THỦ',win?(battle.level===LEVELS.length-1?'Hoàn thành chiến dịch!':'Chiến thắng!'):'Tập hợp lại đội quân',win?`${'★'.repeat(stars)}${'☆'.repeat(3-stars)}\n${LEVELS[battle.level].name}\n${Math.floor(battle.time/60)} phút ${Math.floor(battle.time%60)} giây · Hạ ${battle.kills} quân địch`:'Hãy đầu tư thợ mỏ, dùng hộ vệ che chắn và kết hợp các kỹ năng chỉ huy. Bạn có thể thử lại ngay.',actions);
 }
 function frame(now){const dt=last?Math.min((now-last)/1000,.1):0;last=now;if(active&&!paused&&!battle.result){accumulator+=dt;while(accumulator>=1/30){battle.step(1/30);accumulator-=1/30;}}else accumulator=0;draw(now);library.frame(now);if(now-uiLast>100){ui();uiLast=now;}if(active&&battle.result&&!reported)finished();requestAnimationFrame(frame);}
-art.ready().then(ok=>{artReady=ok;levels();$('load-status').textContent=ok?'Bộ hình ảnh đã sẵn sàng · Phiên bản 2.4':`Không tải được ${art.failed.length} sheet. Kiểm tra mạng rồi tải lại trang.`;});
+art.ready().then(ok=>{artReady=ok;levels();$('load-status').textContent=ok?'Bộ hình ảnh đã sẵn sàng · Phiên bản 3':`Không tải được ${art.failed.length} sheet. Kiểm tra mạng rồi tải lại trang.`;});
 if('serviceWorker'in navigator&&location.protocol!=='file:')navigator.serviceWorker.register('./sw.js').catch(()=>{});
 levels();resize();ui();requestAnimationFrame(frame);

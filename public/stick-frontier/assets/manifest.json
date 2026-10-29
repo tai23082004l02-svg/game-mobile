@@ -1,16 +1,28 @@
 {
-  "version": 2,
+  "version": 3,
   "frame": {
-    "width": 128,
-    "height": 128,
+    "width": 192,
+    "height": 192,
     "pivot": [
-      64,
-      112
-    ]
+      96,
+      168
+    ],
+    "padding": 16
   },
-  "framesPerState": 8,
-  "artScale": 0.72,
-  "deathDrop": 0.273,
+  "framesPerState": 12,
+  "artScale": 0.88,
+  "deathDrop": 0,
+  "durations": {
+    "idle": 1.5,
+    "run": 0.8,
+    "attack": 0.65,
+    "skill": 0.65,
+    "hit": 0.35,
+    "death": 0.85,
+    "dig": 1.25,
+    "carry": 0.9,
+    "unload": 0.45
+  },
   "states": [
     "idle",
     "run",
@@ -20,12 +32,12 @@
     "death"
   ],
   "fps": {
-    "idle": 6,
-    "run": 12,
-    "attack": 14,
-    "skill": 14,
-    "hit": 18,
-    "death": 10
+    "idle": 8,
+    "run": 15,
+    "attack": 18.46153846153846,
+    "skill": 18.46153846153846,
+    "hit": 34.285714285714285,
+    "death": 14.117647058823529
   },
   "units": {
     "miner": {
@@ -212,12 +224,12 @@
     "cycle": 1.25,
     "impactFrame": 8,
     "frame": [
-      128,
-      128
+      192,
+      192
     ],
     "pivot": [
-      64,
-      112
+      96,
+      168
     ],
     "files": {
       "jade": "miner-dig-jade.svg",
@@ -225,6 +237,19 @@
     },
     "mine": "gold-mine.png"
   },
+  "worker": {
+    "states": [
+      "dig",
+      "carry",
+      "unload"
+    ],
+    "files": {
+      "jade": "miner-work-jade.svg",
+      "ember": "miner-work-ember.svg"
+    }
+  },
+  "overview": "characters-overview.svg",
+  "frameMap": "character-frames.json",
   "props": {
     "file": "props.svg",
     "cell": [

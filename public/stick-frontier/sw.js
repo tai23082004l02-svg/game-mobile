@@ -1,10 +1,10 @@
-const CACHE='frontier-assets-v2.4';
+const CACHE='frontier-assets-v3.0';
 const root=self.registration.scope;
 self.addEventListener('install',event=>event.waitUntil((async()=>{
  const cache=await caches.open(CACHE);
  const response=await fetch(new URL('assets/manifest.json',root),{cache:'no-store'});if(!response.ok)throw new Error('Asset manifest unavailable');const m=await response.json();
- const assets=['manifest.json','effects.svg','props.svg','frontier-cover.png','gold-mine.png',...Object.values(m.mining.files),...Object.values(m.units).flatMap(p=>Object.values(p)),...Object.values(m.environment),...Object.keys(m.icons).map(k=>`icon-${k}.svg`),...Object.keys(m.units).map(k=>`portrait-${k}.svg`)];
- const files=['./','index.html','style.css','game.mjs','art.mjs','library.mjs','engine.mjs','app.webmanifest',...assets.map(f=>'assets/'+f)];
+ const assets=['manifest.json','effects.svg','props.svg','frontier-cover.png','gold-mine.png','characters-overview.svg','character-frames.json','character-bounds.json',...Object.values(m.worker.files),...Object.values(m.mining.files),...Object.values(m.units).flatMap(p=>Object.values(p)),...Object.values(m.environment),...Object.keys(m.icons).map(k=>`icon-${k}.svg`),...Object.keys(m.units).map(k=>`portrait-${k}.svg`)];
+ const files=['./','index.html','style.css','game.mjs','art.mjs','library.mjs','engine.mjs','character-layout.mjs','app.webmanifest',...assets.map(f=>'assets/'+f)];
  await cache.addAll(files.map(f=>new URL(f,root).href));await self.skipWaiting();
 })()));
 self.addEventListener('activate',event=>event.waitUntil((async()=>{for(const k of await caches.keys())if(k.startsWith('frontier-assets-')&&k!==CACHE)await caches.delete(k);await self.clients.claim();})()));

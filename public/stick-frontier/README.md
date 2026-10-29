@@ -1,39 +1,34 @@
-# Vệ Binh Biên Giới — v2
+# Vệ Binh Biên Giới — v3
 
-Game chiến thuật người que chơi đơn, giao diện tiếng Việt, điều khiển cảm ứng. Mở `https://tai23082004l02-svg.github.io/game-mobile/stick-frontier/` và xoay ngang điện thoại.
+Game chiến thuật người que chơi đơn, tiếng Việt, điều khiển cảm ứng. Mở https://tai23082004l02-svg.github.io/game-mobile/stick-frontier/ và xoay ngang điện thoại.
 
-## Đã triển khai
+## Nhân vật và hình ảnh
 
-- 20 màn theo 4 vùng đất, đội trưởng tinh nhuệ ở các màn cuối vùng; mở màn tuần tự, lưu sao và thời gian tốt nhất.
-- 6 loại quân với kỹ năng tự động: thợ mỏ, kiếm sĩ, cung thủ, hộ vệ, thương binh và pháp sư. Thương binh mở màn 3, pháp sư mở màn 5.
-- 4 kỹ năng chỉ huy: Mưa tên, Hồi phục, Chiến kỳ và Thiên thạch; kiểm tra linh lực, hồi chiêu, vùng tác dụng và thời gian rơi.
-- Bộ đồ họa gốc: 12 sheet × 48 khung nhân vật, 12 hiệu ứng × 8 khung, 4 địa hình, 6 chân dung, 16 biểu tượng, đạo cụ và ảnh bìa.
-- Hoạt ảnh gắn với chiến đấu; đạn bay, sát thương, giáp, giảm sát thương, làm chậm và xác bị hạ.
-- Thư viện Quân đoàn & kỹ năng, Xưởng đồ họa có xem trước và tải SVG/PNG/ZIP.
-- Tạm dừng, thu phóng theo kích thước màn hình, kéo bản đồ, âm báo tùy chọn, hủy lính cuối hàng chờ hoàn vàng.
-- Service worker lưu tài nguyên sau khi cài cache thành công, để mở lại và chơi offline. Không cần máy chủ game. Nếu trình duyệt xóa bộ nhớ/cache hoặc lần tải đầu chưa hoàn tất, phải tải lại bằng mạng.
+Sáu lớp quân, hai phe; 12 sheet chính (12 cột × 6 hàng) và 2 sheet thợ mỏ (12 cột × 3 hàng), tổng 936 frame minh họa duy nhất. Ô 192 × 192, điểm neo chân (96,168), khoảng đệm alpha tối thiểu 16 px. Không trim hoặc đổi tỷ lệ theo từng frame. Hai sheet đào độc lập được giữ làm bản tải tiện dụng.
 
-## Chạy và kiểm tra
+Động tác: đứng/thở, chạy, tấn công, kỹ năng, trúng đòn, bị hạ. Thợ mỏ có đào, mang túi vàng và giao vàng tại trụ. Mỗi lớp có giáp, mũ, trang phục và vũ khí riêng. Các động tác dùng khớp tay/chân, có lấy đà và thu vũ khí.
 
-`npm start`, mở `http://localhost:3000/stick-frontier/`; hoặc phục vụ thư mục `public` bằng một HTTP server tĩnh. Không cần cài thư viện để chạy game.
+Xưởng đồ họa có xem trước, chọn phe/động tác, tải PNG/SVG/ZIP, bảng minh họa từ frame thật, tọa độ cắt và báo cáo biên. Xem ASSET-GUIDE.md để dựng lại và kiểm tra.
 
-`npm test` chạy kiểm tra toàn kho, `node stick-frontier.test.mjs` chỉ kiểm tra game. Chi tiết bộ đồ họa và cách dựng lại trong `ASSET-GUIDE.md`. Công cụ QA và xuất PNG dùng Playwright, chỉ cần ở môi trường phát triển. Sau khi mở server, chạy `node tools/frontier-browser-check.mjs` để kiểm tra trình duyệt, cảm ứng, tải PNG và offline. Ảnh QA lưu trong `work/frontier-qa/`.
+## Cách chơi
 
-## Cấu trúc
+20 màn theo 4 vùng đất. Tuyển thợ mỏ và quân; điều lệnh phòng thủ/tấn công/rút lui; dùng Mưa tên, Hồi phục, Chiến kỳ và Thiên thạch. Thương binh mở màn 3, pháp sư mở màn 5.
 
-- `engine.mjs`: mô phỏng độc lập giao diện và dữ liệu quân, kỹ năng, chiến dịch.
-- `art.mjs`: tải atlas, cắt khung và vẽ.
-- `game.mjs`: vòng chơi, giao diện, nhập cảm ứng, lưu tiến trình.
-- `library.mjs`: thư viện quân và xưởng đồ họa.
-- `assets/manifest.json`: kích thước, điểm neo, hàng hoạt ảnh, tọa độ hiệu ứng.
-- `tools/build-frontier-assets.mjs`: nguồn vector có thể dựng lại.
+Thợ mỏ đào đủ một chuyến rồi mang túi về trụ. Giao xong mới cộng vàng, kể cả vàng thưởng. Bị hạ giữa đường sẽ mất số vàng đang mang. Ngân khố không tự tăng theo thời gian.
 
-## Giới hạn hiện tại
+Lưu màn mở, sao, thời gian tốt nhất và cài đặt bằng localStorage. Có tạm dừng, âm báo tùy chọn, kéo bản đồ và service worker lưu tài nguyên để mở lại offline khi cache đã cài xong.
 
-Đây là bản web nâng cấp, chưa phải APK/AAB. Chưa tích hợp quảng cáo, mua hàng, đồng bộ cloud hoặc PvP. Tiến trình lưu màn/sao/thời gian/cài đặt trên trình duyệt, chưa lưu giữa trận. Cân bằng 20 màn là bước đầu và vẫn cần phản hồi chơi thật. Kiểm thử trình duyệt giả lập cảm ứng không thay thế việc thử trên S23 Ultra thật.
+## Phát triển
 
-### v2.3 — Mỏ vàng
-Ảnh mỏ vàng lớn, sáu vị trí làm việc không trùng nhau, sheet đào 12 khung riêng cho hai phe, đá/vàng văng theo nhịp cuốc. Bốn nhịp đào nhận 22 vàng; thợ mỏ không nhận thu nhập khi đang đi tới mỏ. Xưởng đồ họa có xem trước và tải sheet đào.
+- `npm start`: mở /stick-frontier/ trên localhost:3000.
+- `npm test`: kiểm tra toàn kho, gồm logic game, tọa độ và báo cáo ảnh.
+- `node tools/frontier-browser-check.mjs`: kiểm tra cảm ứng, tải PNG và offline, cần Playwright.
+- `node tools/build-frontier-assets.mjs`: dựng SVG, bảng minh họa và metadata.
+- `node tools/export-frontier-png.mjs`: xuất PNG bằng Chromium.
+- `python3 tools/verify-frontier-frames.py`: kiểm tra alpha từng frame bằng Pillow.
+- `node tools/verify-frontier-source.mjs`: kiểm tra hình học vector chưa cắt.
+- `python3 tools/pack-frontier-assets.py`: tạo bộ đồ họa ZIP.
 
-### v2.4 — Giao vàng tại trụ
-Thợ mỏ đào đủ một chuyến rồi mang túi vàng về trụ, giao trong 0,45 giây mới cộng ngân khố. Vàng Mạch vàng cũng phải vận chuyển. Nếu bị hạ trước khi giao, số vàng đang mang bị mất. Không còn thu nhập vàng tự động theo thời gian. Thanh dưới hiển thị vàng đang vận chuyển.
+`character-layout.mjs` là nguồn chung cho kích thước, pivot và thời lượng; `tools/frontier-character-art.mjs` dựng nhân vật; `art.mjs` cắt atlas; `engine.mjs` mô phỏng; `game.mjs` giao diện; `library.mjs` thư viện.
+
+Đây là bản web, chưa đóng gói APK/AAB hoặc tích hợp quảng cáo. Chưa lưu giữa trận, đồng bộ cloud hay PvP. Kiểm thử trình duyệt giả lập không thay thế kiểm tra trực tiếp trên điện thoại thật.

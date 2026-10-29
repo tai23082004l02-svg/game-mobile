@@ -1,4 +1,5 @@
-export const MINING={cycle:1.25,frames:12,impactFrame:8,strikesPerPayout:4,amount:22};
+import {DURATIONS,FRAMES} from './character-layout.mjs';
+export const MINING={cycle:DURATIONS.dig,frames:FRAMES,impactFrame:8,strikesPerPayout:4,amount:22};
 export const TROOPS = {
  miner:{name:'Thợ mỏ',cost:60,hp:80,speed:40,damage:0,range:0,rate:1,train:2,unlock:0,armor:0,skill:'Mạch vàng',skillText:'Mỗi 24 giây, tìm thêm 35 vàng trong mỏ. Mang về trụ để nhận.',skillCD:24,role:'Kinh tế'},
  sword:{name:'Kiếm sĩ',cost:90,hp:155,speed:55,damage:23,range:46,rate:1.05,train:2,unlock:0,armor:0,skill:'Trảm nguyệt',skillText:'Mỗi 8 giây: chém tối đa 3 địch gần, gây 36 sát thương mỗi mục tiêu.',skillCD:8,role:'Cận chiến'},
@@ -94,7 +95,7 @@ export class Battle{
   for(const u of this.units){
    if(u.hp<=0)continue;u.animTime+=dt;u.cool-=dt;u.ability-=dt;u.flash=Math.max(0,u.flash-dt);u.barrier=Math.max(0,u.barrier-dt);u.slow=Math.max(0,u.slow-dt);
    if(u.action){u.action.left-=dt;if(u.action.left<=0){this.resolve(u,u.action);u.action=null;}continue;}
-   if(u.type!=='miner'&&['attack','skill','hit'].includes(u.state)&&u.animTime<.58)continue;
+   if(u.type!=='miner'&&['attack','skill','hit'].includes(u.state)&&u.animTime<DURATIONS[u.state])continue;
    const old=u.x;
    if(u.type==='miner'){
     const spot=this.miningSpot(u),home=this.bases[u.team].x+(u.team?-36:36);
@@ -108,11 +109,11 @@ export class Battle{
      u.facing=Math.sign(goal-u.x);const speed=u.speed*(u.slow>0?.55:1)*(u.team===0&&this.rally>0?1.2:1);
      u.x+=Math.sign(goal-u.x)*Math.min(Math.abs(goal-u.x),speed*dt);
     }else if(u.job==='returning'){
-     u.job='unloading';u.unloadLeft=.45;this.setState(u,'idle');
+     u.job='unloading';u.unloadLeft=DURATIONS.unload;this.setState(u,'idle');
     }else{
      u.job='mining';u.facing=1;
-     if(u.state==='hit'&&u.animTime<.18)continue;
-     if(!(u.state==='skill'&&u.animTime<.58))this.setState(u,'dig');
+     if(u.state==='hit'&&u.animTime<DURATIONS.hit)continue;
+     if(!(u.state==='skill'&&u.animTime<DURATIONS.skill))this.setState(u,'dig');
      const offset=1-MINING.impactFrame/MINING.frames;
      const before=Math.floor(u.digTime/MINING.cycle+offset);u.digTime+=dt;u.mine+=dt;
      const after=Math.floor(u.digTime/MINING.cycle+offset);

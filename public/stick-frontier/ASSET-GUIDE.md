@@ -1,56 +1,34 @@
-# Bộ đồ họa Vệ Binh Biên Giới — phiên bản 2
+# Bộ nhân vật minh họa v3
 
-## Nội dung
+Sáu lớp nhân vật, hai phe, tổng 936 frame duy nhất. Đây là chính bộ ảnh đã tích hợp vào game.
 
-- 12 sheet nhân vật: 6 lớp × 2 phe (jade/ngọc bích, ember/hỏa thạch).
-- Mỗi sheet 1024 × 768, gồm 8 cột × 6 hàng, ô 128 × 128, 48 khung. Tổng 576 khung nhân vật.
-- Thứ tự hàng: `idle`, `run`, `attack`, `skill`, `hit`, `death`.
-- Sheet hiệu ứng `effects.svg`: 1024 × 1536, 8 cột × 12 hàng; thứ tự hàng nằm trong `manifest.json`.
-- 16 biểu tượng riêng và một sheet 512 × 128; 6 chân dung.
-- 4 nền 1800 × 480: meadow, pass, valley, citadel.
-- Sheet đạo cụ 768 × 256: căn cứ phe ngọc, căn cứ phe hỏa, mỏ vàng.
-- Ảnh bìa PNG gốc. 25 ảnh PNG được xuất từ vector trong thư mục `png/` của gói ZIP.
+## Sheet và cách cắt
 
-Các sheet nhân vật, hiệu ứng và đạo cụ có nền trong suốt. Không có hình ảnh lấy từ game tham khảo.
+- 12 sheet chính, mỗi sheet 2304 × 1152: 12 cột × 6 hàng.
+- Hàng: idle, run, attack, skill, hit, death.
+- 2 sheet thợ mỏ 2304 × 576: 12 cột × 3 hàng dig, carry, unload.
+- 2 sheet đào độc lập 2304 × 192 được giữ làm bản tải tiện dụng; frame đào đã tính trong 936 frame, không tính lặp.
+- Mỗi ô 192 × 192, điểm neo chân **(96,168)**, khoảng đệm tối thiểu **16 pixel** quanh nội dung.
+- Không trim, không xoay từng ô, không thay tỷ lệ theo từng frame. Hai phe dùng cùng hình học và thời gian.
+- Cắt: x = cột × 192; y = hàng × 192; width = height = 192.
+- `character-frames.json` có đủ 936 bản ghi atlas, tọa độ cắt, pivot và thời lượng.
+- `character-layout.mjs` là nguồn chung cho công cụ dựng và bộ vẽ trong game.
 
-## Tọa độ và hoạt ảnh
+## Động tác
 
-`sourceX = frame * 128`, `sourceY = row * 128`.
-Điểm neo mặc định: `(64, 112)` trong ô. Mã nguồn vector có khoảng trống để vũ khí không tràn sang ô khác.
-`artScale` trong manifest là tỷ lệ dựng hình trong ô; game hiển thị ô 148 pixel thế giới để nhân vật dễ nhìn.
-Với `death`, cộng offset hạ thân `size * deathDrop * min(1, animationTime / 0.7)` như trong `art.mjs`.
+Đứng có nhịp thở; chạy có chân trụ/chân vung; tấn công có lấy đà, tiếp xúc và thu vũ khí. Bị hạ dùng các khớp hạ thân xuống, không xoay cả ảnh khiến vũ khí tràn ra ngoài. Các lớp có mũ, giáp, áo choàng và vũ khí riêng.
 
-- Đứng: 6 fps, lặp.
-- Chạy: 12 fps, lặp.
-- Đánh/kỹ năng: 14 fps trong game, không lặp; khai thác của thợ mỏ lặp.
-- Trúng đòn: 18 fps, không lặp.
-- Bị hạ: 10 fps, không lặp, sau đó xóa xác.
+Thợ mỏ có chu kỳ đào 1,25 giây, tiếp xúc ở frame 8. Đào đủ một chuyến rồi mang túi vàng về trụ; động tác giao kéo dài 0,45 giây, giao xong mới cộng tiền. Vàng thưởng cũng phải vận chuyển. Không thay đổi cơ chế kinh tế này khi nâng cấp hình ảnh.
 
-Hai phe cùng hướng trên sheet; game lật ngang phe địch. Không lật sheet ở bước xuất file.
+## Kiểm tra không cắt góc
 
-## Kỹ năng đã tích hợp
+1. `node tools/build-frontier-assets.mjs`: dựng SVG, bảng minh họa và tọa độ.
+2. `node tools/export-frontier-png.mjs`: xuất PNG bằng Chromium/Playwright.
+3. `python3 tools/verify-frontier-frames.py`: đọc kênh alpha từng ô PNG, kiểm tra biên 16 pixel, ghi SHA-256 của từng SVG vào `character-bounds.json`. Cần Pillow ở môi trường phát triển.
+4. `node tools/verify-frontier-source.mjs`: đo cả tư thế vector chưa cắt để phát hiện phần nằm ngoài ô, ghi `character-source-check.json`.
+5. `npm test`: kiểm tra renderer, tọa độ, điểm neo và báo cáo tương ứng với SVG đang lưu.
+6. `python3 tools/pack-frontier-assets.py`: đóng gói.
 
-| Quân | Kỹ năng riêng |
-|---|---|
-| Thợ mỏ | Mạch vàng: thưởng 35 vàng sau chu kỳ 24 giây |
-| Kiếm sĩ | Trảm nguyệt: sát thương cận chiến lên tối đa ba mục tiêu |
-| Cung thủ | Xuyên phong: hai mũi tên bỏ qua giáp |
-| Hộ vệ | Thiết bích: giảm 70% sát thương trong ba giây |
-| Thương binh | Phá giáp: đòn đâm bỏ qua giáp |
-| Pháp sư | Băng hoàn: sát thương vùng và làm chậm |
+Bước 2 và 4 cần Playwright hoặc Playwright Core cùng Chromium. Có thể chọn bản cài sẵn qua FRONTIER_PLAYWRIGHT_MODULE và FRONTIER_CHROMIUM.
 
-Chỉ huy có Mưa tên, Hồi phục, Chiến kỳ và Thiên thạch. Chỉ số cụ thể nằm trong `engine.mjs` và màn Quân đoàn & kỹ năng. Các hiệu ứng gắn với sát thương/hồi máu thật trong mô phỏng, không chỉ là hình ảnh trình diễn.
-
-## Dựng lại
-
-Từ thư mục gốc dự án:
-
-1. `node tools/build-frontier-assets.mjs` để dựng SVG và manifest.
-2. Cài Playwright vào môi trường phát triển nếu chưa có, rồi chạy `node tools/export-frontier-png.mjs` để xuất PNG. Có thể dùng Playwright Core với `FRONTIER_PLAYWRIGHT_MODULE` và `FRONTIER_CHROMIUM` trỏ tới bản cài sẵn.
-3. `python3 tools/pack-frontier-assets.py` để đóng gói ZIP.
-
-Bước dựng SVG không cần thư viện ngoài. Bước xuất PNG dùng Chromium để vẽ SVG, không chỉnh sửa ảnh bìa AI. Gói ZIP chứa nguồn dựng vector và nguồn xuất PNG. Xem `ART-LICENSE.txt`.
-
-## Cập nhật đào vàng — v2.3
-
-Thêm `gold-mine.png` và hai sheet `miner-dig-jade` / `miner-dig-ember` ở cả SVG và PNG. Mỗi sheet 1536 × 128, 12 khung 128 × 128, điểm neo (64,112). Chu kỳ 1,25 giây; cuốc chạm đá tại khung 8, bốn nhịp đào đủ 22 vàng trong túi; phải mang về trụ và giao xong mới cộng ngân khố. Chỉ thợ mỏ đã tới vị trí làm việc mới đào và tạo thu nhập. Xem `mining` trong manifest. Bộ ZIP hiện có 27 bản PNG xuất từ vector, ngoài các ảnh minh họa gốc.
+`characters-overview.png` là bảng minh họa có nhãn, dựng từ chính các frame thật; không dùng làm atlas trong runtime. Các atlas có nền trong suốt. Gói ZIP có SVG, PNG, manifest và nguồn dựng. Xem ART-LICENSE.txt.
