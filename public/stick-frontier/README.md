@@ -34,3 +34,6 @@ Game chiến thuật người que chơi đơn, giao diện tiếng Việt, đi�
 
 ### v2.3 — Mỏ vàng
 Ảnh mỏ vàng lớn, sáu vị trí làm việc không trùng nhau, sheet đào 12 khung riêng cho hai phe, đá/vàng văng theo nhịp cuốc. Bốn nhịp đào nhận 22 vàng; thợ mỏ không nhận thu nhập khi đang đi tới mỏ. Xưởng đồ họa có xem trước và tải sheet đào.
+
+### v2.4 — Giao vàng tại trụ
+Thợ mỏ đào đủ một chuyến rồi mang túi vàng về trụ, giao trong 0,45 giây mới cộng ngân khố. Vàng Mạch vàng cũng phải vận chuyển. Nếu bị hạ trước khi giao, số vàng đang mang bị mất. Không còn thu nhập vàng tự động theo thời gian. Thanh dưới hiển thị vàng đang vận chuyển.

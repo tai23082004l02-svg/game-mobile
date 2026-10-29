@@ -1,4 +1,4 @@
-const CACHE='frontier-assets-v2.3';
+const CACHE='frontier-assets-v2.4';
 const root=self.registration.scope;
 self.addEventListener('install',event=>event.waitUntil((async()=>{
  const cache=await caches.open(CACHE);
