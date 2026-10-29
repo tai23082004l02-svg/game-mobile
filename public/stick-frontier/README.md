@@ -31,3 +31,6 @@ Game chiến thuật người que chơi đơn, giao diện tiếng Việt, đi�
 ## Giới hạn hiện tại
 
 Đây là bản web nâng cấp, chưa phải APK/AAB. Chưa tích hợp quảng cáo, mua hàng, đồng bộ cloud hoặc PvP. Tiến trình lưu màn/sao/thời gian/cài đặt trên trình duyệt, chưa lưu giữa trận. Cân bằng 20 màn là bước đầu và vẫn cần phản hồi chơi thật. Kiểm thử trình duyệt giả lập cảm ứng không thay thế việc thử trên S23 Ultra thật.
+
+### v2.3 — Mỏ vàng
+Ảnh mỏ vàng lớn, sáu vị trí làm việc không trùng nhau, sheet đào 12 khung riêng cho hai phe, đá/vàng văng theo nhịp cuốc. Bốn nhịp đào nhận 22 vàng; thợ mỏ không nhận thu nhập khi đang đi tới mỏ. Xưởng đồ họa có xem trước và tải sheet đào.

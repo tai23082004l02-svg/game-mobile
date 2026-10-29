@@ -13,10 +13,10 @@ const path=(d,c,s='none',w=1)=>`<path d="${d}" fill="${c}" stroke="${s}" stroke-
 const circle=(x,y,r,c,s='none',w=1)=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${c}" stroke="${s}" stroke-width="${w}"/>`;
 const n=x=>Number(x.toFixed(2));
 function warrior(type,team,state,f,fit=.72){
- const t=f/7,p=team?'#ffb993':'#b9f6dd',mid=team?'#99565a':'#428f88',dark=team?'#533e4a':'#265562',gold='#edc77a',ink='#142835',metal='#d9e8de';
- const run=state==='run',attack=state==='attack'||state==='skill',skill=state==='skill';
+ const t=f/(state==='dig'?11:7),p=team?'#ffb993':'#b9f6dd',mid=team?'#99565a':'#428f88',dark=team?'#533e4a':'#265562',gold='#edc77a',ink='#142835',metal='#d9e8de';
+ const run=state==='run',attack=state==='dig'||state==='attack'||state==='skill',skill=state==='skill';
  const swing=Math.sin(t*Math.PI),stride=run?Math.sin(t*Math.PI*2)*14:Math.sin(t*2*Math.PI)*1.4;
- const bob=run?-Math.abs(stride)*.13:Math.sin(t*Math.PI*2)*1.2;
+ const bob=state==='dig'?Math.max(0,Math.sin(t*Math.PI))*4:run?-Math.abs(stride)*.13:Math.sin(t*Math.PI*2)*1.2;
  const lean=attack?swing*7:state==='hit'?-swing*8:0;
  const arm=attack?swing*19:0;
  let body=`<ellipse cx="64" cy="115" rx="22" ry="4" fill="#0c2228" opacity=".16"/>`;
@@ -38,7 +38,8 @@ function warrior(type,team,state,f,fit=.72){
   body+=path('M49 33Q49 19 62 20Q76 20 77 33Z',gold,ink,2)+line('M47 33h31',gold,4)+circle(66,25,4,'#fff2ba',mid,2);
   body+=path('M53 58L69 58L71 77L54 77Z','#a98455')+line('M58 58v18',gold,2);
   body+=line(`M56 58L${66+arm*.4} 68L${80+arm*.4} ${49-arm*.5}`,ink,6);
-  const angle=attack?-55+swing*100:-15;
+  const angle=state==='dig'?[-70,-95,-115,-125,-95,-20,55,115,130,100,25,-35][f]:attack?-55+swing*100:-15;
+  if(state==='dig')body+=line(`M71 57L79 66L${83+Math.sin(angle*Math.PI/180)*12} ${61-Math.cos(angle*Math.PI/180)*12}`,ink,5);
   body+=`<g transform="rotate(${angle} 81 55)">${line('M78 76L83 28','#ae8556',4)}${path('M64 31Q82 17 103 32L103 38Q85 28 64 37Z',metal,ink,1.5)}</g>`;
   body+=path('M43 67L51 67L51 82L40 82Z',dark,gold,1);
  }else if(type==='sword'){
@@ -76,6 +77,12 @@ for(const type of TYPES){manifest.units[type]={};for(let team=0;team<2;team++){
  let body='';for(let row=0;row<STATES.length;row++)for(let f=0;f<FRAMES;f++)body+=`<svg x="${f*SIZE}" y="${row*SIZE}" width="128" height="128" viewBox="0 0 128 128" overflow="hidden">${warrior(type,team,STATES[row],f)}</svg>`;
  const file=`${type}-${team?'ember':'jade'}.svg`;await writeFile(join(out,file),svg(SIZE*FRAMES,SIZE*STATES.length,body));manifest.units[type][team?'ember':'jade']=file;
 }}
+// Dedicated mining cycle: lift, swing, impact (frame 8), recovery.
+manifest.mining={frames:12,cycle:1.25,impactFrame:8,frame:[128,128],pivot:[64,112],files:{jade:'miner-dig-jade.svg',ember:'miner-dig-ember.svg'},mine:'gold-mine.png'};
+for(let team=0;team<2;team++){
+ let body='';for(let f=0;f<12;f++)body+=`<svg x="${f*128}" y="0" width="128" height="128" viewBox="0 0 128 128" overflow="hidden">${warrior('miner',team,'dig',f)}</svg>`;
+ await writeFile(join(out,manifest.mining.files[team?'ember':'jade']),svg(1536,128,body));
+}
 const FX=['slash','impact','arrow','fireball','blast','heal','rally','barrier','meteor','frost','coin','dust'];
 function effect(kind,f){const t=f/7,r=5+t*43,o=n(1-t*.85),c=['fireball','blast','meteor'].includes(kind)?'#ffb36d':['heal','rally','barrier'].includes(kind)?'#a4f3ce':'#d6f8ed';let s='';
  if(kind==='slash')s=`<path d="M${55-t*18} 18Q118 62 ${55-t*18} 109Q94 60 ${55-t*18} 18" fill="${c}" opacity="${o}"/>`;
@@ -123,5 +130,5 @@ let props='';for(let team=0;team<2;team++){const x=team*256,c=team?'#785357':'#3
  props+=`<g transform="translate(512 0)">${path('M35 222L49 175L75 160L100 181L132 167L181 225Z','#7a8976','#435e58',3)}${path('M64 202L77 172L90 196L81 213Z','#efca76')}${path('M111 208L126 179L139 199L130 216Z','#ffe0a1')}</g>`;await writeFile(join(out,'props.svg'),svg(768,256,props));
 manifest.props={file:'props.svg',cell:[256,256],items:{jadeTower:0,emberTower:1,goldMine:2}};
 await writeFile(join(out,'manifest.json'),JSON.stringify(manifest,null,2)+'\n');
-await writeFile(join(out,'ART-LICENSE.txt'),'Original artwork for Vệ Binh Biên Giới, created for the owner of tai23082004l02-svg/game-mobile. Commercial use, modification and distribution in this game are permitted. Vector sources: tools/build-frontier-assets.mjs. AI-generated cover: frontier-cover.png. No third-party game sprites are included. Fonts use the device system font.\n');
+await writeFile(join(out,'ART-LICENSE.txt'),'Original artwork for Vệ Binh Biên Giới, created for the owner of tai23082004l02-svg/game-mobile. Commercial use, modification and distribution in this game are permitted. Vector sources: tools/build-frontier-assets.mjs. AI-generated illustrations: frontier-cover.png and gold-mine.png. No third-party game sprites are included. Fonts use the device system font.\n');
 console.log('Built 12 character atlases × 48 frames, 12 effect animations, 16 icons, 6 portraits, 4 terrains, props and manifest.');

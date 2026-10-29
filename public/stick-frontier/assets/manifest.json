@@ -207,6 +207,24 @@
     "valley": "terrain-valley.svg",
     "citadel": "terrain-citadel.svg"
   },
+  "mining": {
+    "frames": 12,
+    "cycle": 1.25,
+    "impactFrame": 8,
+    "frame": [
+      128,
+      128
+    ],
+    "pivot": [
+      64,
+      112
+    ],
+    "files": {
+      "jade": "miner-dig-jade.svg",
+      "ember": "miner-dig-ember.svg"
+    },
+    "mine": "gold-mine.png"
+  },
   "props": {
     "file": "props.svg",
     "cell": [

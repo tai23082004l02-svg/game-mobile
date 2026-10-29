@@ -50,3 +50,7 @@ Từ thư mục gốc dự án:
 3. `python3 tools/pack-frontier-assets.py` để đóng gói ZIP.
 
 Bước dựng SVG không cần thư viện ngoài. Bước xuất PNG dùng Chromium để vẽ SVG, không chỉnh sửa ảnh bìa AI. Gói ZIP chứa nguồn dựng vector và nguồn xuất PNG. Xem `ART-LICENSE.txt`.
+
+## Cập nhật đào vàng — v2.3
+
+Thêm `gold-mine.png` và hai sheet `miner-dig-jade` / `miner-dig-ember` ở cả SVG và PNG. Mỗi sheet 1536 × 128, 12 khung 128 × 128, điểm neo (64,112). Chu kỳ 1,25 giây; cuốc chạm đá tại khung 8, bốn nhịp đào nhận 22 vàng. Chỉ thợ mỏ đã tới vị trí làm việc mới đào và tạo thu nhập. Xem `mining` trong manifest. Bộ ZIP hiện có 27 bản PNG xuất từ vector, ngoài các ảnh minh họa gốc.

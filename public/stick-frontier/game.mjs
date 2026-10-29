@@ -53,7 +53,7 @@ function tower(b,team){art.prop(ctx,team,b.x,412,210);ctx.fillStyle='#19353c';ct
 function draw(now){
  ctx.clearRect(0,0,width,height);ctx.fillStyle='#aac2b6';ctx.fillRect(0,0,width,height);ctx.save();ctx.scale(scale,scale);ctx.translate(worldOffset-camera,0);
  const terrain=art.images.get(`terrain-${battle.config.terrain}.svg`);if(terrain)ctx.drawImage(terrain,-worldOffset,0,Math.max(1800,view),480);
- art.prop(ctx,2,300,413,142);tower(battle.bases[0],0);tower(battle.bases[1],1);
+ const mine=art.images.get('gold-mine.png');if(mine){ctx.save();if(battle.mine.flash>0)ctx.globalAlpha=.88;ctx.drawImage(mine,battle.mine.x-110,278,240,160);ctx.restore();}else art.prop(ctx,2,battle.mine.x,413,180);text(`MỎ VÀNG · ${battle.units.filter(u=>!u.team&&u.type==='miner').length}/6 THỢ`,battle.mine.x,287,10,'#6c521e');tower(battle.bases[0],0);tower(battle.bases[1],1);
  for(const u of [...battle.corpses,...battle.units].sort((a,b)=>a.lane-b.lane)){
   if(u.x<camera-100||u.x>camera+view+100)continue;const y=381+u.lane*12,size=u.elite?178:148;art.unit(ctx,u,u.x,y,size);
   if(u.elite)text('◆',u.x,y-size*.9,13,'#e6b85d');
@@ -63,7 +63,7 @@ function draw(now){
   if(!u.team&&battle.rally>0)circle(u.x,y+2,13,null,'#b9f6dd88');
  }
  for(const p of battle.projectiles)art.effect(ctx,p.kind,(p.age*8)%1,p.x,p.y,p.kind==='fireball'?70:60,p.team);
- for(const e of battle.effects){const progress=1-e.left/e.total;if(e.kind==='text'){ctx.globalAlpha=Math.min(1,e.left*3);text(e.text,e.x,e.y-progress*24,12,e.text.startsWith('+')?'#7c5d1c':'#974c3c');ctx.globalAlpha=1;continue;}
+ for(const e of battle.effects){const progress=1-e.left/e.total;if(e.kind==='ore'){for(let i=0;i<5;i++){const vx=16+i*7,dx=Math.sin(i*2+e.seed)*vx*progress,dy=-45*progress+60*progress*progress;ctx.fillStyle=i%2?'#ffe7a0':'#a29d80';ctx.fillRect(e.x+dx,e.y+dy+i*3,3,3);}continue;}if(e.kind==='text'){ctx.globalAlpha=Math.min(1,e.left*3);text(e.text,e.x,e.y-progress*24,12,e.text.startsWith('+')?'#7c5d1c':'#974c3c');ctx.globalAlpha=1;continue;}
   if(e.warning){ctx.fillStyle='#e78b5944';ctx.beginPath();ctx.ellipse(e.x,391,e.radius,25,0,0,Math.PI*2);ctx.fill();art.effect(ctx,'meteor',progress,e.x+90*(1-progress),100+progress*245,160);}
   else if(e.area){ctx.save();ctx.globalAlpha=.7;ctx.beginPath();ctx.ellipse(e.x,391,e.radius,25,0,0,Math.PI*2);ctx.strokeStyle=e.kind==='heal'?'#b6f7d7':'#ffddb3';ctx.lineWidth=3;ctx.stroke();ctx.restore();for(let i=-1;i<=1;i++){ctx.save();ctx.translate(e.x+i*75,e.kind==='arrow'?210+progress*160:355);if(e.kind==='arrow')ctx.rotate(Math.PI/2);art.effect(ctx,e.kind,progress,0,0,130,e.team);ctx.restore();}}
   else art.effect(ctx,e.kind,progress,e.x,e.y,e.kind==='dust'?40:e.kind==='blast'||e.kind==='frost'?170:95,e.team);
@@ -82,6 +82,6 @@ function finished(){reported=true;cancelTarget();const win=battle.result==='win'
  const actions=[['Chọn màn',menu],['Chơi lại',()=>start(battle.level)]];if(win&&battle.level<LEVELS.length-1)actions.push(['Màn tiếp theo',()=>start(battle.level+1),true]);dialog(win?'VÙNG ĐẤT ĐÃ ĐƯỢC GIẢI PHÓNG':'CĂN CỨ ĐÃ THẤT THỦ',win?(battle.level===LEVELS.length-1?'Hoàn thành chiến dịch!':'Chiến thắng!'):'Tập hợp lại đội quân',win?`${'★'.repeat(stars)}${'☆'.repeat(3-stars)}\n${LEVELS[battle.level].name}\n${Math.floor(battle.time/60)} phút ${Math.floor(battle.time%60)} giây · Hạ ${battle.kills} quân địch`:'Hãy đầu tư thợ mỏ, dùng hộ vệ che chắn và kết hợp các kỹ năng chỉ huy. Bạn có thể thử lại ngay.',actions);
 }
 function frame(now){const dt=last?Math.min((now-last)/1000,.1):0;last=now;if(active&&!paused&&!battle.result){accumulator+=dt;while(accumulator>=1/30){battle.step(1/30);accumulator-=1/30;}}else accumulator=0;draw(now);library.frame(now);if(now-uiLast>100){ui();uiLast=now;}if(active&&battle.result&&!reported)finished();requestAnimationFrame(frame);}
-art.ready().then(ok=>{artReady=ok;levels();$('load-status').textContent=ok?'Bộ hình ảnh đã sẵn sàng · Phiên bản 2':`Không tải được ${art.failed.length} sheet. Kiểm tra mạng rồi tải lại trang.`;});
+art.ready().then(ok=>{artReady=ok;levels();$('load-status').textContent=ok?'Bộ hình ảnh đã sẵn sàng · Phiên bản 2.3':`Không tải được ${art.failed.length} sheet. Kiểm tra mạng rồi tải lại trang.`;});
 if('serviceWorker'in navigator&&location.protocol!=='file:')navigator.serviceWorker.register('./sw.js').catch(()=>{});
 levels();resize();ui();requestAnimationFrame(frame);

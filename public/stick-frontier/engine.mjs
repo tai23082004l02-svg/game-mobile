@@ -1,3 +1,4 @@
+export const MINING={cycle:1.25,frames:12,impactFrame:8,strikesPerPayout:4,amount:22};
 export const TROOPS = {
  miner:{name:'Thợ mỏ',cost:60,hp:80,speed:40,damage:0,range:0,rate:1,train:2,unlock:0,armor:0,skill:'Mạch vàng',skillText:'Mỗi 24 giây khai thác, nhận thêm 35 vàng.',skillCD:24,role:'Kinh tế'},
  sword:{name:'Kiếm sĩ',cost:90,hp:155,speed:55,damage:23,range:46,rate:1.05,train:2,unlock:0,armor:0,skill:'Trảm nguyệt',skillText:'Mỗi 8 giây: chém tối đa 3 địch gần, gây 36 sát thương mỗi mục tiêu.',skillCD:8,role:'Cận chiến'},
@@ -27,6 +28,7 @@ export class Battle{
   this.level=Number.isInteger(level)?Math.max(0,Math.min(LEVELS.length-1,level)):0;this.config=LEVELS[this.level];
   this.gold=this.config.startGold;this.energy=60;this.time=0;this.units=[];this.projectiles=[];this.effects=[];this.corpses=[];this.pending=[];
   this.queue=[];this.order='defend';this.result=null;this.wave=0;this.enemyTimer=20;this.nextId=0;this.kills=0;this.recruited=0;this.rally=0;
+  this.mine={x:375,y:408,flash:0};
   this.cooldowns=Object.fromEntries(Object.keys(SKILLS).map(k=>[k,0]));
   this.bases=[{x:120,hp:1000,max:1000,cool:0,team:0},{x:1680,hp:this.config.hp,max:this.config.hp,cool:0,team:1}];
   this.spawn('miner',0);this.spawn('miner',0);this.spawn('sword',0);this.spawn('sword',1);
@@ -41,8 +43,10 @@ export class Battle{
  spawn(type,team,elite=false){
   const d=TROOPS[type];if(!d)return null;const id=this.nextId++,factor=team?1+this.level*.009:1;
   const u={...d,type,team,id,x:team?1590:205,hp:d.hp*factor,max:d.hp*factor,damage:d.damage*factor,cool:0,mine:0,lane:id%4,walk:0,flash:0,state:'idle',animTime:0,action:null,ability:type==='miner'?24:2+id%4,barrier:0,slow:0,elite};
+  if(type==='miner'){const occupied=new Set(this.units.filter(v=>v.type==='miner'&&v.team===team&&v.hp>0).map(v=>v.mineSlot));u.mineSlot=Array.from({length:6},(_,i)=>i).find(i=>!occupied.has(i))??0;u.lane=u.mineSlot<3?1:3;u.digTime=0;u.strikes=0;}
   if(elite){u.hp*=1.75;u.max=u.hp;u.damage*=1.25;}this.units.push(u);if(!team)this.recruited++;return u;
  }
+ miningSpot(u){const slot=u.mineSlot??0;return {x:287+(slot%3)*17,y:381+u.lane*12};}
  fx(kind,x,team=0,duration=.6,extra={}){this.effects.push({kind,x,y:365,left:duration,total:duration,team,...extra});}
  setState(u,state){if(u.state!==state){u.state=state;u.animTime=0;}}
  damage(target,amount,armorIgnore=false){
@@ -80,7 +84,7 @@ export class Battle{
  }
  shoot(u,target,damage,kind,ignore=false){this.projectiles.push({x:u.x,y:345+u.lane*12,target,team:u.team,damage,kind,ignore,age:0});}
  step(dt){
-  if(this.result||!Number.isFinite(dt)||dt<=0)return;dt=Math.min(dt,.1);this.time+=dt;this.gold=Math.min(9999,this.gold+2*dt);this.energy=Math.min(100,this.energy+1.6*dt);this.rally=Math.max(0,this.rally-dt);
+  if(this.result||!Number.isFinite(dt)||dt<=0)return;dt=Math.min(dt,.1);this.time+=dt;this.mine.flash=Math.max(0,this.mine.flash-dt);this.gold=Math.min(9999,this.gold+2*dt);this.energy=Math.min(100,this.energy+1.6*dt);this.rally=Math.max(0,this.rally-dt);
   for(const k of Object.keys(this.cooldowns))this.cooldowns[k]=Math.max(0,this.cooldowns[k]-dt);
   for(const p of this.pending){p.left-=dt;if(p.left<=0){for(const u of this.units)if(u.team===1&&u.hp>0&&Math.abs(u.x-p.x)<=SKILLS.meteor.radius)this.damage(u,145);if(Math.abs(this.bases[1].x-p.x)<=SKILLS.meteor.radius)this.damage(this.bases[1],70,true);this.fx('blast',p.x,0,.9);p.done=true;}}
   this.pending=this.pending.filter(p=>!p.done);
@@ -93,8 +97,21 @@ export class Battle{
    if(u.type!=='miner'&&['attack','skill','hit'].includes(u.state)&&u.animTime<.58)continue;
    const old=u.x;
    if(u.type==='miner'){
-    const goal=285+u.lane*14;if(Math.abs(u.x-goal)>3)u.x+=Math.sign(goal-u.x)*u.speed*dt;
-    else{u.mine+=dt;if(!(u.state==='skill'&&u.animTime<.58)&&!(u.state==='hit'&&u.animTime<.18))this.setState(u,'attack');if(u.mine>=5){u.mine-=5;this.gold=Math.min(9999,this.gold+22);this.fx('coin',u.x,0,.7);this.fx('text',u.x,0,1,{text:'+22',y:330});}if(u.ability<=0){u.ability=24;this.gold=Math.min(9999,this.gold+35);this.setState(u,'skill');this.fx('coin',u.x,0,1);this.fx('text',u.x,0,1,{text:'+35',y:320});}}
+    const spot=this.miningSpot(u),goal=spot.x;
+    if(Math.abs(u.x-goal)>2)u.x+=Math.sign(goal-u.x)*Math.min(Math.abs(goal-u.x),u.speed*dt);
+    else{
+     if(u.state==='hit'&&u.animTime<.18)continue;
+     if(!(u.state==='skill'&&u.animTime<.58))this.setState(u,'dig');
+     const offset=1-MINING.impactFrame/MINING.frames;
+     const before=Math.floor(u.digTime/MINING.cycle+offset);u.digTime+=dt;u.mine+=dt;
+     const after=Math.floor(u.digTime/MINING.cycle+offset);
+     if(after>before){
+      u.strikes++;this.mine.flash=.18;this.fx('impact',u.x+43,u.team,.25,{y:spot.y-33});this.fx('dust',u.x+42,u.team,.45,{y:spot.y-20});
+      this.fx('ore',u.x+43,u.team,.65,{y:spot.y-29,seed:u.mineSlot});
+      if(u.strikes%MINING.strikesPerPayout===0){this.gold=Math.min(9999,this.gold+MINING.amount);this.fx('coin',u.x,u.team,.7);this.fx('text',u.x,u.team,1,{text:'+'+MINING.amount,y:330});}
+     }
+     if(u.ability<=0){u.ability=24;this.gold=Math.min(9999,this.gold+35);this.setState(u,'skill');this.fx('coin',u.x,0,1);this.fx('text',u.x,0,1,{text:'+35',y:320});}
+    }
    }else{
     let nearest=null,distance=Infinity;for(const v of this.units)if(v.team!==u.team&&v.hp>0){const d=Math.abs(v.x-u.x);if(d<distance){nearest=v;distance=d;}}
     const base=this.bases[1-u.team];let target=nearest&&distance<=u.range?nearest:null;

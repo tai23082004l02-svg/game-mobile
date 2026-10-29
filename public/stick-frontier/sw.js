@@ -1,9 +1,9 @@
-const CACHE='frontier-assets-v2.2';
+const CACHE='frontier-assets-v2.3';
 const root=self.registration.scope;
 self.addEventListener('install',event=>event.waitUntil((async()=>{
  const cache=await caches.open(CACHE);
  const response=await fetch(new URL('assets/manifest.json',root),{cache:'no-store'});if(!response.ok)throw new Error('Asset manifest unavailable');const m=await response.json();
- const assets=['manifest.json','effects.svg','props.svg','frontier-cover.png',...Object.values(m.units).flatMap(p=>Object.values(p)),...Object.values(m.environment),...Object.keys(m.icons).map(k=>`icon-${k}.svg`),...Object.keys(m.units).map(k=>`portrait-${k}.svg`)];
+ const assets=['manifest.json','effects.svg','props.svg','frontier-cover.png','gold-mine.png',...Object.values(m.mining.files),...Object.values(m.units).flatMap(p=>Object.values(p)),...Object.values(m.environment),...Object.keys(m.icons).map(k=>`icon-${k}.svg`),...Object.keys(m.units).map(k=>`portrait-${k}.svg`)];
  const files=['./','index.html','style.css','game.mjs','art.mjs','library.mjs','engine.mjs','app.webmanifest',...assets.map(f=>'assets/'+f)];
  await cache.addAll(files.map(f=>new URL(f,root).href));await self.skipWaiting();
 })()));
